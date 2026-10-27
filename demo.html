@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Команда 7. Сортировка, длинная версия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Cinzel+Decorative:wght@700&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#8d4330; --pink:#ff8ba6; --peach:#ffd6b7; --gold:#ffc179; --cream:#fff6ee; --paper:#ffe7d4; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Balsamiq Sans", "Segoe Print", "Comic Sans MS", cursive;
+    line-height: 1.45;
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 12px 12px, rgba(255,139,166,.35) 2px, transparent 3px),
+      linear-gradient(rgba(255,193,121,.25) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,139,166,.18) 1px, transparent 1px);
+    background-size: 28px 28px, 100% 22px, 22px 100%;
+    cursor: url("cursors/pointer.png") 1 1, auto;
+  }
+  a, button, label { cursor: url("cursors/hand.png") 8 2, pointer; }
+  body > div[style*="z-index: 999"],
+  body > div[style*="z-index:999"] { pointer-events: none; }
+  .ads { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; padding: 8px 10px; background: #111; }
+  .ads img { image-rendering: pixelated; max-height: 64px; border: 2px solid #ff0; background: #fff; }
+  .float { position: fixed; z-index: 5; pointer-events: none; width: 64px; animation: bob 3.4s ease-in-out infinite; }
+  .float.a { top: 70px; right: 8px; }
+  .float.b { bottom: 16px; left: 8px; animation-delay: .6s; }
+  .float.c { top: 42%; right: 6px; width: 78px; animation-delay: 1s; }
+  .critters { position: fixed; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; }
+  .critters img { position: absolute; left: 0; top: 0; image-rendering: pixelated; }
+  .web88 { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; padding: 6px 8px 8px; background: #111; }
+  .web88 img { height: 31px; image-rendering: pixelated; }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(6deg); } }
+  .blink { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .topbar { position: sticky; top: 0; z-index: 30; display: flex; gap: 8px; align-items: center; min-height: 46px; padding: 6px 12px; flex-wrap: wrap; background: linear-gradient(#fff, #ffe0ea); border-bottom: 4px solid #fff; box-shadow: 0 4px 0 var(--pink); }
+  .song { font-weight: 700; text-shadow: 2px 2px #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: min(460px, 46vw); }
+  .radio-set { position: fixed; right: 10px; bottom: 10px; z-index: 25; width: 240px; background: #111; border: 3px solid var(--pink); box-shadow: 0 0 0 3px #fff; border-radius: 12px; overflow: hidden; }
+  .radio-set.off { display: none; }
+  .radio-set iframe { display: block; width: 240px; height: 135px; border: 0; background: #111; }
+  .radio-set p { margin: 0; color: #fff; font-size: 12px; padding: 4px 8px; }
+  button.deck-jump { display: block; width: 100%; text-align: left; margin: 4px 0 8px; background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--pink); }
+  .wipe { position: fixed; inset: 0; z-index: 60; pointer-events: none; display: none; }
+  .wipe.go { display: block; }
+  .wipe span { position: absolute; left: 0; right: 0; height: 50%; background: var(--pink); transform: scaleY(0); }
+  .wipe span:first-child { top: 0; transform-origin: top; }
+  .wipe span:last-child { bottom: 0; transform-origin: bottom; }
+  .wipe.go span { animation: wipe .62s ease; }
+  @keyframes wipe { 0% { transform: scaleY(0); } 42% { transform: scaleY(1); } 100% { transform: scaleY(0); } }
+  .deck { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 14px 14px 10px; background: radial-gradient(circle at 12px 12px, rgba(255,139,166,.28) 2px, transparent 3px), linear-gradient(#2a120c, #12080c); opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility .35s; }
+  .deck.open { opacity: 1; visibility: visible; }
+  body.deck-mode { overflow: hidden; }
+  body.deck-mode .critters { z-index: 42; }
+  .deck-frame { position: relative; width: min(1100px, calc(100vw - 32px), calc((100vh - 128px) * 16 / 9)); aspect-ratio: 16 / 9; background: var(--cream); border: 4px solid #fff; box-shadow: 0 0 0 6px var(--pink), 0 0 0 10px var(--gold); border-radius: 18px; overflow: hidden; }
+  .deck-slide { position: absolute; inset: 0; padding: 28px 40px 22px; opacity: 0; transition: opacity .42s ease, transform .42s ease; overflow: auto; }
+  .deck-slide.right { transform: translateX(64px); }
+  .deck-slide.left { transform: translateX(-64px); }
+  .deck-slide.on { opacity: 1; transform: none; z-index: 1; }
+  .deck-slide.on.right { transform: translateX(64px); }
+  .deck-slide.on.left { transform: translateX(-64px); }
+  .deck-slide h2 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(28px, 3vw, 42px); margin: 0 0 12px; }
+  .deck-slide .who { font-size: 20px; margin: 0 0 8px; }
+  .deck-slide ul { margin: 0; padding-left: 1.2em; font-size: clamp(18px, 2vw, 24px); }
+  .deck-slide li { margin: 7px 0; }
+  .deck-slide table { min-width: 0; font-size: clamp(15px, 1.6vw, 20px); }
+  .deck-slide th { background: var(--ink); color: #fff; }
+  .deck-title { display: grid; grid-template-columns: 1.3fr .9fr; gap: 16px; height: 100%; align-items: center; }
+  .deck-title h2 { font-size: clamp(36px, 4.4vw, 58px); line-height: 1; }
+  .faces-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .faces-grid img { width: 100%; height: 118px; object-fit: cover; background: #fff; border: 3px solid #fff; box-shadow: 0 0 0 3px var(--pink); padding: 3px 3px 10px; }
+  .chart-slide { display: grid; grid-template-columns: 1.6fr .7fr; gap: 12px; height: 100%; align-items: stretch; }
+  .chart-slide.solo { grid-template-columns: 1fr; }
+  .chart-slide > div { min-height: 0; display: flex; flex-direction: column; }
+  .chart-slide img { width: 100%; flex: 1; min-height: 0; object-fit: contain; background: #fff; border-radius: 12px; }
+  .deck-slide.ink { background: var(--ink); color: #fff6ee; }
+  .deck-slide.ink h2, .deck-slide.ink li { color: #fff; }
+  .hit { position: absolute; top: 0; bottom: 0; width: 16%; z-index: 2; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .hit.prev { left: 0; }
+  .hit.next { right: 0; }
+  .deck-bar { display: flex; gap: 8px; align-items: center; color: #fff; z-index: 43; }
+  .deck-bar b { min-width: 64px; text-align: center; }
+  .deck-dots { display: flex; gap: 6px; z-index: 43; }
+  .deck-dots button { width: 12px; height: 12px; padding: 0; border-radius: 50%; box-shadow: none; background: #fff; }
+  .deck-dots button.on { background: var(--pink); }
+  .block { scroll-margin-top: 74px; }
+  .jumps { position: relative; z-index: 3; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .jumps button { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--pink); }
+  .backbar { display: none; position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 35; background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--pink); }
+  .backbar.on { display: block; }
+  body.deck-mode .backbar { display: none; }
+  .deck-sticker { position: fixed; z-index: 41; width: 42px; pointer-events: none; }
+  .deck:not(.open) .deck-sticker { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .wipe.go span, .deck, .deck-slide { animation: none; transition: none; }
+  }
+  .track { flex: 1; height: 10px; border-radius: 999px; border: 1px solid var(--pink); background: #fff; overflow: hidden; }
+  .track span { display: block; height: 100%; width: 30%; background: repeating-linear-gradient(90deg, var(--pink) 0 8px, var(--gold) 8px 14px); animation: load 8s linear infinite; }
+  @keyframes load { from { transform: translateX(-120%); } to { transform: translateX(340%); } }
+  .marquee { overflow: hidden; border-bottom: 3px double var(--pink); background: rgba(255,255,255,.7); font-weight: 700; }
+  .marquee p { margin: 6px 0; white-space: nowrap; animation: slide 28s linear infinite; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  .layout { max-width: 1180px; margin: 0 auto; padding: 12px; display: grid; grid-template-columns: 250px 1fr; gap: 12px; }
+  aside, .block, .hero {
+    background: rgba(255,246,238,.94);
+    border: 3px double var(--pink);
+    box-shadow: 0 0 0 5px #fff, 0 0 0 8px var(--gold);
+    border-radius: 22px;
+  }
+  aside { position: sticky; top: 58px; align-self: start; max-height: calc(100vh - 70px); overflow: auto; padding: 12px; }
+  aside h2, .block h2, .hero h1 { font-family: "Unbounded", "Trebuchet MS", sans-serif; }
+  aside a { display: block; color: var(--ink); text-decoration: none; padding: 3px 0; }
+  aside a:hover { background: #ffe0ea; }
+  .stat { background: #fff; border: 2px dashed var(--pink); border-radius: 12px; padding: 8px; margin-top: 8px; font-size: 14px; }
+  .stamps { display: flex; flex-wrap: wrap; gap: 6px; }
+  .stamps img { width: 64px; height: 76px; object-fit: cover; background: #fff; padding: 3px 3px 12px; border: 2px solid var(--pink); transform: rotate(var(--r)); }
+  main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .hero, .block { padding: 14px 16px 18px; }
+  h1 { font-family: "Cinzel Decorative", Palatino, serif; font-size: clamp(28px, 4vw, 46px); line-height: 1.05; margin: 4px 0; }
+  h2 { margin: 0 0 8px; font-size: 22px; }
+  h3 { margin: 12px 0 4px; font-family: "Unbounded", sans-serif; font-size: 18px; }
+  .kicker { letter-spacing: .14em; font-size: 12px; margin: 0; }
+  button, .topbar button, a.navtab {
+    font: inherit; border: 3px double #fff; background: #fff; color: var(--ink);
+    border-radius: 999px; padding: 7px 12px; box-shadow: 3px 3px 0 var(--peach);
+    text-decoration: none;
+  }
+  button.primary, button.on { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--pink); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+  .card { background: #fff; border: 3px double var(--gold); border-radius: 16px; padding: 10px; }
+  .who { margin: 0; color: #c45b78; font-weight: 700; }
+  .note { background: #fff; border: 2px dashed var(--pink); border-radius: 12px; padding: 8px 10px; }
+  .bars { display: flex; align-items: flex-end; gap: 6px; min-height: 150px; margin: 8px 0; }
+  .bars i { width: 42px; border: 3px solid var(--ink); border-radius: 10px 10px 4px 4px; display: flex; align-items: flex-end; justify-content: center; font-weight: 700; background: #fff; font-style: normal; }
+  .bars i.on { background: var(--gold); }
+  .bars i.lo { background: #d7f5e3; }
+  .bars i.mid { background: var(--gold); }
+  .bars i.hi { background: #ffd0dc; }
+  .bars i.piv { outline: 3px solid var(--ink); background: var(--pink); color: #fff; }
+  .row { display: flex; gap: 8px; align-items: flex-end; min-height: 120px; }
+  .chip { width: 70px; border-radius: 12px 12px 6px 6px; border: 3px solid; display: flex; align-items: flex-end; justify-content: center; font-weight: 700; background: #fff; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; background: #fff; font-size: 15px; }
+  th, td { border: 1px solid #f3c3cf; padding: 5px 7px; text-align: left; }
+  th { background: #ffe0ea; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .meter { height: 18px; background: #fff; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; margin: 3px 0 8px; }
+  .meter span { display: block; height: 100%; background: var(--pink); }
+  .meter.gold span { background: var(--gold); }
+  .meter.ink span { background: var(--ink); }
+  input[type="range"] { width: min(420px, 100%); accent-color: var(--pink); }
+  input[type="text"] { font: inherit; border: 2px solid var(--pink); border-radius: 10px; padding: 6px 8px; width: min(280px, 70%); }
+  .ok { color: #1d7a45; font-weight: 700; }
+  .bad { color: #b42318; font-weight: 700; }
+  .guest li { background: #fff; border-radius: 10px; margin: 4px 0; padding: 4px 8px; }
+  .stage { position: relative; height: 460px; border-radius: 18px; overflow: hidden; color: #fff6ee; background: radial-gradient(circle at 50% 0, rgba(255,193,121,.35), transparent 40%), linear-gradient(#2a120c, #12080c 60%, #3a1420); }
+  .stars { position: absolute; inset: 0; background-image: radial-gradient(circle, #fff 1px, transparent 1.4px); background-size: 46px 46px; animation: drift 14s linear infinite; opacity: .5; }
+  @keyframes drift { to { background-position: 0 -46px; } }
+  .crawl { position: absolute; left: 0; right: 0; top: 100%; text-align: center; }
+  .stage.running .crawl { animation: crawl 58s linear forwards; }
+  .stage.paused .crawl { animation-play-state: paused; }
+  @keyframes crawl { to { transform: translateY(calc(-100% - 460px)); } }
+  .credit { margin: 0 auto 28px; max-width: 640px; }
+  .credit h3 { font-family: "Cinzel Decorative", Palatino, serif; font-size: clamp(26px, 4vw, 44px); color: #fff; text-shadow: 0 0 12px rgba(255,193,121,.5); }
+  .credit .role, .credit .kicker { color: var(--gold); }
+  .portrait, .shrimp-shot { opacity: 0; background: #fff; border: 3px solid #fff; box-shadow: 0 0 0 3px var(--pink); }
+  .portrait { width: min(230px, 70vw); aspect-ratio: 4/5; object-fit: cover; padding: 7px 7px 22px; }
+  .portrait.in, .shrimp-shot.in { animation: pop .7s ease forwards; }
+  .shrimp-shot { width: min(460px, 90vw); max-height: 240px; object-fit: cover; }
+  .portrait.vhs { filter: saturate(.65) contrast(1.15); }
+  @keyframes pop { from { opacity: 0; transform: rotate(-8deg) scale(.4); } to { opacity: 1; transform: rotate(-2deg) scale(1); } }
+  .credits-ui { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; gap: 8px; justify-content: center; z-index: 2; }
+  .pics { width: 100%; max-width: 720px; display: block; margin: 8px auto; border: 3px solid #fff; box-shadow: 0 0 0 3px var(--pink); border-radius: 12px; }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; max-height: none; }
+    .float { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spark, .float, .blink, .marquee p, .track span { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="critters" id="critters" aria-hidden="true"></div>
+<div class="radio-set off" id="radioSet">
+  <iframe id="yt-radio" title="NCS радио" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" src="about:blank"></iframe>
+  <p>NCS Kawaii Mix</p>
+</div>
+<div class="topbar">
+  <button type="button" id="pomp">пафос выкл</button>
+  <button type="button" id="lineup">наклейки в ряд</button>
+  <button type="button" id="openDeck" class="primary">презентация</button>
+  <a class="navtab" href="kontrolnaya.html">контрольная</a>
+  <button type="button" id="stationPrev" title="прошлая станция">станция −</button>
+  <button type="button" id="radioToggle">радио</button>
+  <button type="button" id="stationNext" title="следующая станция">станция +</button>
+  <span class="song" id="clock">сейчас играет: тимсорт в мажоре</span>
+  <div class="track" aria-hidden="true"><span></span></div>
+  <span class="song blink">перегруз включён</span>
+</div>
+<div class="marquee"><p>команда 7 ★ timsort ★ powersort ★ dual-pivot ★ introsort ★ вставки на коротком куске ★ пирамида спасает от квадрата ★ sort() без функции сравнивает строки ★ устойчивость значит равные не обгоняют ★ команда 7 ★ timsort ★ powersort ★ dual-pivot ★ introsort ★ вставки на коротком куске ★ пирамида спасает от квадрата ★ sort() без функции сравнивает строки ★ устойчивость значит равные не обгоняют ★</p></div>
+<div class="ads">
+  <img src="banners/unsorted.gif" alt="Реклама: массив не отсортирован">
+  <img src="banners/doctor.gif" alt="Реклама: один компаратор">
+  <img src="banners/win.gif" alt="Реклама: выигрыш n log n">
+  <img src="banners/ram.gif" alt="Реклама: скачай больше озу">
+  <img src="banners/click.gif" alt="Реклама: кликни">
+  <img src="banners/build.gif" alt="Реклама: сайт строится">
+  <img src="banners/ie.gif" alt="Кнопка IE6">
+  <img src="banners/ring.gif" alt="Кнопка SORT">
+  <img src="stickers/rainbow-star.gif" alt="">
+  <img src="stickers/fox.gif" alt="">
+  <img src="stickers/cow.gif" alt="">
+  <img src="stickers/bat.gif" alt="">
+  <img src="stickers/raven.gif" alt="">
+</div>
+<div class="web88">
+  <img src="gifcity/gallery26_de8642bf.png" alt="Best viewed 800x600">
+  <img src="gifcity/gallery26_2a7fa783.gif" alt="800x600 hi-color">
+  <img src="gifcity/gallery26_72115e16.png" alt="Y2H">
+  <img src="gifcity/gallery26_2aa577e6.gif" alt="Best viewed with a computer">
+  <img src="gifcity/gallery26_95c38f58.png" alt="Made with Windows">
+  <img src="gifcity/gallery26_ba727db1.gif" alt="Lightrax">
+  <img src="gifcity/gallery26_d77a2034.gif" alt="">
+  <img src="gifcity/gallery26_ac5dbf7e.gif" alt="Go online">
+  <img src="gifcity/gallery28_33ade54c.png" alt="GeoCities">
+  <img src="gifcity/gallery28_b2c3bd3d.gif" alt="Geocities community">
+</div>
+<div class="layout">
+<aside>
+  <p class="kicker">ПУЛЬТ</p>
+  <h2>Куда листать</h2>
+  <a href="#pulpit">Пульт</a>
+  <a href="#idea">Что такое сортировка</a>
+  <a href="#cost">Линейно, n log n, квадрат</a>
+  <a href="#stable">Устойчивость</a>
+  <a href="#insert">Вставки</a>
+  <a href="#tim">Timsort и Powersort</a>
+  <a href="#merge">Слияние</a>
+  <a href="#pivot">Два опорных Java</a>
+  <a href="#intro">Introsort</a>
+  <a href="#trap">Ловушка JavaScript</a>
+  <a href="#langs">Пять языков</a>
+  <a href="#bench">Наши замеры</a>
+  <a href="#talk">Кто говорит</a>
+  <a href="#quiz">Пять вопросов</a>
+  <a href="kontrolnaya.html">Контрольная 29.11</a>
+  <a href="#book">Книга гостей</a>
+  <a href="#credits">Титры</a>
+  <button type="button" class="deck-jump" id="openDeckSide">Презентация</button>
+  <div class="stat">
+    <b class="blink">статус группы</b><br>
+    смотрим: серии Timsort<br>
+    слушаем: треугольник, до-мажор<br>
+    настроение: <span id="mood">устойчивое</span><br>
+    заходов на страницу: <b id="visits">1</b>
+  </div>
+  <div class="stat">
+    <img src="stickers/bars.gif" alt="" width="96" height="72">
+    <p>Наклейки: CC0 с OpenGameArt и подборка с gifcity.carrd.co. Шлейф: Tinkerbell, mf2fm. Баннеры нарисованы для проекта.</p>
+  </div>
+  <div class="stamps">
+    <img src="faces/chain.jpg" alt="Участник" style="--r:-6deg">
+    <img src="faces/wavy.jpg" alt="Участник" style="--r:4deg">
+    <img src="faces/curly.jpg" alt="Участник" style="--r:-2deg">
+    <img src="faces/kid.jpg" alt="Архив" style="--r:5deg">
+  </div>
+</aside>
+<main>
+  <header class="hero" id="top">
+    <p class="kicker">КИПУ ИМЕНИ ФЕВЗИ ЯКУБОВА · КОМАНДА 7</p>
+    <h1>Сортировка в современных языках</h1>
+    <p>Подъячий Глеб, Керимов Андрей, Мамбетов Родион, Черакаев Антон, Кулиш Артём. Одна кнопка sort, семь разных машин внутри. Дальше пульт и объяснение, как эти машины устроены.</p>
+    <p><button type="button" class="primary" id="openDeckHero">Открыть презентацию</button></p>
+  </header>
+
+  <section class="block" id="pulpit">
+    <h2>Пульт</h2>
+    <p>Сначала ловушка строк, потом две двойки, потом таблица на миллион. Ниже на странице разбор, откуда эти цифры.</p>
+    <div class="cards">
+      <div class="card"><p class="who">Подъячий Глеб</p><h3>Python</h3><p>list.sort. Timsort. С версии 3.11 серии сливаются по Powersort. Устойчивая. На случайном миллионе 277 мс, на готовом порядке 5,86 мс.</p></div>
+      <div class="card"><p class="who">Керимов Андрей</p><h3>Java</h3><p>int[] это Dual-Pivot Quicksort, 48 мс и 0,11 мс на готовом порядке. Integer[] это Timsort, 260 мс, порядок равных хранится.</p></div>
+      <div class="card"><p class="who">Мамбетов Родион</p><h3>C#</h3><p>Array.Sort это introsort, 48 мс, порядок равных ломается. OrderBy хранит порядок, потому что при равенстве смотрит исходный номер.</p></div>
+      <div class="card"><p class="who">Черакаев Антон</p><h3>C++</h3><p>std::sort это introsort, 55 мс, не устойчивый. std::stable_sort это слияние, 52 мс, порядок хранит.</p></div>
+      <div class="card"><p class="who">Кулиш Артём</p><h3>JavaScript</h3><p>В Node и Chrome это Timsort, 175 мс. Без функции сравнения [10, 2, 1] становится [1, 10, 2].</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="idea">
+    <h2>Что вообще делает сортировка</h2>
+    <p>На входе последовательность, на выходе те же элементы, но в порядке «меньше, потом больше». Сортировка ничего не добавляет и не выбрасывает. Если в массиве было две двойки, на выходе тоже две двойки. Вопрос только в том, какая из них встанет левее.</p>
+    <p>Сравнение смотрит на пару элементов и решает, кто меньше. Почти все встроенные сортировки сравнивают. Отсюда нижняя оценка: в худшем случае нужно порядка n log n сравнений. Линейные сортировки вроде подсчёта живут в другой вселенной: им нужно, чтобы ключи были целыми из узкого диапазона. Встроенные sort так не делают, потому что обязаны уметь строки, объекты и свои функции сравнения.</p>
+    <p>Память тоже разная. Introsort и быстрая сортировка почти на месте: дополнительно только стек рекурсии, это O(log n). Слияние и Timsort просят запасной массив порядка n. За эту память они покупают устойчивость и хороший лучший случай.</p>
+  </section>
+
+  <section class="block" id="cost">
+    <h2>Три скорости на пальцах</h2>
+    <p>Двигай длину массива. Полоски показывают, во сколько раз вырастает работа относительно массива из 1 000 элементов. Квадрат убегает сразу. n log n растёт чуть быстрее прямой линии. Наши замеры легли на среднюю полоску: от 100 тысяч к миллиону время выросло примерно в 12-14 раз.</p>
+    <p><label>Длина n: <b id="nlab">100000</b></label><br><input id="nslide" type="range" min="1000" max="1000000" step="1000" value="100000"></p>
+    <p>Прямая линия, O(n)</p>
+    <div class="meter gold"><span id="barN"></span></div>
+    <p>n log n, обычный случай Timsort, быстрой сортировки и слияния</p>
+    <div class="meter"><span id="barL"></span></div>
+    <p>Квадрат, O(n²). Так ведут себя голые вставки на длинном массиве и неудачная быстрая сортировка без защиты</p>
+    <div class="meter ink"><span id="barQ"></span></div>
+    <p class="note" id="costText"></p>
+  </section>
+
+  <section class="block" id="stable">
+    <h2>Устойчивость</h2>
+    <p>Две двойки равны по значению. Буква А стояла левее буквы Б ещё до сортировки. Устойчивый алгоритм это не меняет. На порядок «от меньшего к большему» буквы не влияют: обе двойки и так раньше восьмёрки. Буквы важны, когда за числом стоит запись: два студента с одной оценкой, два товара с одной ценой, исходный номер строки.</p>
+    <div class="row" id="twins"></div>
+    <p>
+      <button type="button" id="modeStart" class="primary">Как было</button>
+      <button type="button" id="modeStable">Устойчивые</button>
+      <button type="button" id="modeUnstable">Без гарантии</button>
+    </p>
+    <p class="note" id="modeText"></p>
+    <p>В нашей проверке было не десять элементов, а 400 пар «значение, исходный номер». Сортировка сравнивала только значение. Короткий массив обманывает: introsort на куске короче порога доделывает работу вставками, а вставки как раз устойчивые. Поэтому C# и C++ на сорока элементах могли случайно сохранить порядок. На 400 элементах Array.Sort и std::sort порядок сломали. Python, JavaScript, объекты Java и std::stable_sort сохранили.</p>
+    <p>У чисел типа int своего «кто левее» нет: две одинаковые пятёрки неразличимы. Поэтому для int[] в Java устойчивость не спрашивают. Спрашивают, когда элемент это объект.</p>
+  </section>
+
+  <section class="block" id="insert">
+    <h2>Вставки, рабочая лошадка коротких кусков</h2>
+    <p>Идём слева направо. Кусок слева уже упорядочен. Очередной элемент несём влево, пока левый сосед строго больше. Равных не перепрыгиваем, поэтому вставки устойчивые. Кнопки листают каждый обмен отдельно. На n элементах в худшем случае это около n²/2 сравнений. На десяти элементах это копейки, на миллионе это катастрофа. Поэтому Timsort, introsort и Dual-Pivot отдают вставкам только короткие хвосты.</p>
+    <div id="playInsert"></div>
+    <p class="note">Порог в C# Array.Sort: кусок не длиннее 16. В MSVC std::sort порог 32. В Timsort короткую серию доращивают вставками до minrun, обычно от 32 до 64, чтобы дальнейшие слияния были ровнее.</p>
+  </section>
+
+  <section class="block" id="tim">
+    <h2>Timsort: не ломать то, что уже упорядочено</h2>
+    <p>Этот разбор у Глеба: так устроен Python. Те же серии стоят в объектах Java и в V8. Обычная жизнь данных не случайный шум. Журнал почти по времени, таблица почти по имени, массив уже отсортировали и дописали хвост. Timsort ищет готовые серии: куски, которые и так идут вверх или вниз. Нисходящую серию разворачивают. Слишком короткую добирают вставками. Потом серии сливают. Ниже каждый взгляд на соседнюю пару это отдельный кадр.</p>
+    <div id="playTim"></div>
+    <h3>Powersort</h3>
+    <p>Мало найти серии. Надо решить, какие две сливать сейчас. Плохой выбор: приклеить крошечную серию к огромной, хотя рядом лежат две средние, которые дешевле соединить друг с другом. До Python 3.11 у Timsort был свой набор правил на стеке. С 3.11 CPython выбирает порядок слияния по стратегии Powersort (Munro и Wild): она ближе к оптимальному дереву слияния. Снаружи это тот же list.sort: устойчивый, дополнительная память O(n), на полностью готовом массиве почти один проход.</p>
+    <p>Наш миллион уже упорядоченных чисел Python разобрал за 5,86 мс вместо 277 мс на случайных. Алгоритм увидел одну длинную серию и почти не сливал.</p>
+  </section>
+
+  <section class="block" id="merge">
+    <h2>Слияние, из чего сделаны устойчивые сортировки</h2>
+    <p>Этот разбор у Антона: std::stable_sort в C++ это такое слияние. Два упорядоченных куска. Смотрим на их головы и забираем меньшую. Если головы равны, забираем из левого куска. Поэтому слияние устойчиво: более ранний равный элемент выходит раньше. Нужен третий массив, куда складывается результат. Если дополнительной памяти хватает, время O(n log n). Если памяти нет, стандарт разрешает более медленный путь O(n log² n). Кадры ниже показывают каждое сравнение голов.</p>
+    <div id="playMerge"></div>
+  </section>
+
+  <section class="block" id="pivot">
+    <h2>Java для чисел: два опорных</h2>
+    <p>Этот разбор у Андрея. Arrays.sort для int, long, float и double в Java 17 это Dual-Pivot Quicksort (Ярославский, Бентли, Блох). Берут два опорных элемента. Всё, что меньше левого опорного, уезжает влево. Всё, что больше правого, уезжает вправо. Середина остаётся между ними. Получается три части, и на каждой можно продолжать. Это быстрее классической быстрой сортировки на одном опорном, потому что за один проход массив делится на три, а не на две. Кадры ниже это схема на одном маленьком массиве, не построчная копия исходника Java.</p>
+    <div id="playPivot"></div>
+    <p>Короткие куски добирают вставками. Если массив уже почти упорядочен, современная реализация замечает готовые серии и сливает их, поэтому наш упорядоченный миллион int занял 0,11 мс вместо 48. Устойчивости нет и для голых чисел она не нужна. Для Integer[] и других объектов Java вызывает другой алгоритм: устойчивый Timsort. На том же случайном миллионе объекты заняли 260 мс. Разница с 48 мс это цена объекта и сравнения, а не «Timsort плохой».</p>
+  </section>
+
+  <section class="block" id="intro">
+    <h2>Introsort: быстрая сортировка с предохранителем</h2>
+    <p>Этот разбор у Антона: так устроен std::sort. У Родиона тот же каркас в Array.Sort, только вставки включаются раньше, на куске короче 17, а не 32. Голая быстрая сортировка в худшем случае квадратичная: каждый раз опорный оказывается крайним, и глубина растёт до n. Introsort начинает как быстрая сортировка, но считает глубину. Если глубина больше примерно 2 log n, этот кусок досортировывают пирамидой. У пирамиды худший случай честный O(n log n). На практике предохранитель почти не срабатывает, и скорость остаётся как у быстрой сортировки. Память почти только стек, O(log n). Устойчивости нет: равные элементы свободно меняются местами при разрезании.</p>
+    <div id="playIntro"></div>
+    <p>Так устроены C# Array.Sort (вставки, если кусок короче 17, иначе контроль глубины) и C++ std::sort в MSVC (вставки до 32). C# OrderBy идёт другим путём и устойчив. C++ std::stable_sort тоже другой путь, это слияние.</p>
+  </section>
+
+  <section class="block" id="trap">
+    <h2>Ловушка JavaScript</h2>
+    <p>Этот показ у Артёма. Стандарт с ES2019 требует, чтобы Array.prototype.sort был устойчивым. Какой именно алгоритм, стандарт не говорит. Node.js 24 и Chrome сидят на движке V8, а V8 сортирует Timsort. Firefox и Safari устойчивые тоже, но машина внутри может быть другой. Наш замер это только V8.</p>
+    <p>Вторая ловушка важнее для защиты. Без функции сравнения элементы приводят к строкам. Строка «10» меньше строки «2», потому что символ «1» меньше символа «2». Число 10 при этом больше числа 2.</p>
+    <p>
+      <button type="button" id="trapBad" class="primary">sort() без сравнения</button>
+      <button type="button" id="trapGood">sort((a, b) =&gt; a - b)</button>
+    </p>
+    <p class="trap" id="trapOut" style="font-family:Consolas,monospace;font-size:22px">[10, 2, 1]</p>
+    <p class="note" id="trapText">Без функции сравнения 10 превращается в строку «10» и встаёт между «1» и «2».</p>
+    <div id="playStr"></div>
+  </section>
+
+  <section class="block" id="langs">
+    <h2>Шпаргалка по языкам</h2>
+    <div class="scroll">
+    <table>
+      <tr><th>Вызов</th><th>Алгоритм</th><th>Время</th><th>Память</th><th>Устойчивость</th><th>Лучший друг</th></tr>
+      <tr><td>Python list.sort</td><td>Timsort, Powersort</td><td>O(n log n), серия O(n)</td><td>O(n)</td><td>да</td><td>почти готовые данные</td></tr>
+      <tr><td>Java int[]</td><td>Dual-Pivot Quicksort</td><td>O(n log n)</td><td>O(log n)</td><td>для чисел не о чем говорить</td><td>голые числа</td></tr>
+      <tr><td>Java Integer[]</td><td>Timsort</td><td>O(n log n), серия O(n)</td><td>O(n)</td><td>да</td><td>объекты</td></tr>
+      <tr><td>C# Array.Sort</td><td>introsort</td><td>O(n log n)</td><td>O(log n)</td><td>нет</td><td>числа, скорость</td></tr>
+      <tr><td>C# OrderBy</td><td>устойчивая, с исходным номером</td><td>O(n log n)</td><td>O(n)</td><td>да</td><td>равные записи</td></tr>
+      <tr><td>JavaScript V8</td><td>Timsort</td><td>O(n log n)</td><td>O(n)</td><td>да, это требует язык</td><td>массивы в браузере</td></tr>
+      <tr><td>C++ std::sort</td><td>introsort</td><td>O(n log n)</td><td>O(log n)</td><td>нет</td><td>числа на месте</td></tr>
+      <tr><td>C++ stable_sort</td><td>слияние</td><td>O(n log n) при памяти</td><td>O(n)</td><td>да</td><td>равные записи</td></tr>
+    </table>
+    </div>
+  </section>
+
+  <section class="block" id="bench">
+    <h2>Как мы мерили</h2>
+    <p>Один генератор, зерно 7, пять рисунков данных: случайные, по возрастанию, по убыванию, всего десять разных значений, почти упорядоченный (каждый 50-й элемент поменян с соседом). Размеры 10 тысяч, 100 тысяч и 1 миллион. Все языки читали один и тот же файл. Первая попытка выбрасывалась, дальше медиана пяти. Время это только вызов сортировки, без чтения файла.</p>
+    <p>Сборка Java, C# и C++ шла во временной папке с латинским именем. На этой машине javac портит кириллицу в полном пути.</p>
+    <h3>Миллион элементов, миллисекунды</h3>
+    <div class="scroll">
+    <table id="benchTable">
+      <tr><th>Реализация</th><th class="num">Случайные</th><th class="num">По возрастанию</th><th class="num">По убыванию</th><th class="num">Мало разных</th><th class="num">Почти упорядочен</th></tr>
+      <tr><td>C++ std::sort</td><td class="num">54,7</td><td class="num">4,35</td><td class="num">5,65</td><td class="num">8,86</td><td class="num">4,92</td></tr>
+      <tr><td>C# Array.Sort</td><td class="num">48,1</td><td class="num">4,76</td><td class="num">9,23</td><td class="num">17,3</td><td class="num">4,92</td></tr>
+      <tr><td>Java int[]</td><td class="num">48,0</td><td class="num">0,11</td><td class="num">0,64</td><td class="num">9,05</td><td class="num">4,44</td></tr>
+      <tr><td>C++ stable_sort</td><td class="num">52,4</td><td class="num">4,48</td><td class="num">8,04</td><td class="num">17,3</td><td class="num">4,36</td></tr>
+      <tr><td>JavaScript, V8</td><td class="num">175</td><td class="num">8,88</td><td class="num">8,94</td><td class="num">84,3</td><td class="num">20,3</td></tr>
+      <tr><td>Java Integer[]</td><td class="num">260</td><td class="num">1,19</td><td class="num">6,65</td><td class="num">130</td><td class="num">4,04</td></tr>
+      <tr><td>Python list.sort</td><td class="num">277</td><td class="num">5,86</td><td class="num">6,91</td><td class="num">96,2</td><td class="num">14,5</td></tr>
+    </table>
+    </div>
+    <img class="pics" src="results/fig_random.png" alt="Столбцы времени на случайном миллионе">
+    <img class="pics" src="results/fig_sorted.png" alt="Столбцы времени на упорядоченном миллионе">
+    <p class="note">На случайных числах Java int, C# и C++ стоят рядом: 48, 48 и 55 мс. Python 277, объекты Java 260, JavaScript 175. Это цена языка. На готовом порядке адаптивные реализации схлопываются: Java int с 48 мс до 0,11, Python с 277 до 5,86. Массив из десяти разных значений тяжелее для устойчивых сортировок объектов: Python 96 мс, Java Integer 130 мс, а std::sort остаётся на 8,86 мс.</p>
+    <h3>Коротко по цифрам</h3>
+    <ul>
+      <li>Свои сортировки здесь не писали. Тема команды 7: встроенные функции. Свои реализации были в лабораторных.</li>
+      <li>48 мс и 277 мс сравнивают язык и цену объекта. Это не сравнение «какой алгоритм умнее».</li>
+      <li>Java int на убывании тоже почти мгновенный, 0,64 мс: реализация видит длинную нисходящую серию.</li>
+      <li>Стандарт C++ не назначает introsort. Он обещает среднее O(n log n) и не обещает устойчивость. Introsort стоит в MSVC, на котором собирали программу.</li>
+      <li>Стандарт JavaScript не назначает Timsort. Он требует устойчивость. Алгоритм выбирает движок. Замер сделан на V8.</li>
+    </ul>
+  </section>
+
+  <section class="block" id="talk">
+    <h2>Кто говорит</h2>
+    <p><b>Сейчас Глеб.</b> Имя sort одно, внутри пять языков и семь вызовов. Python: Timsort ищет готовые серии, с версии 3.11 сливает их по Powersort, равных не переставляет. На случайном миллионе 277 мс, на готовом порядке 5,86 мс.</p>
+    <p><b>Сейчас Андрей.</b> В Java две функции. Для int это два опорных: 48 мс на случайных и 0,11 мс на готовом порядке. Для Integer это Timsort: 260 мс, порядок записей хранится.</p>
+    <p><b>Сейчас Родион.</b> Array.Sort это introsort: вставки на коротком куске, пирамида при глубокой рекурсии, 48 мс, порядок равных ломается. Когда порядок нужен, берём OrderBy.</p>
+    <p><b>Сейчас Антон.</b> std::sort и std::stable_sort. 55 и 52 мс на случайном миллионе. Первая работает на месте и порядок равных не обещает. Вторая сливает и порядок хранит.</p>
+    <p><b>Сейчас Артём.</b> В V8 это Timsort, 175 мс. Без функции сравнения числа становятся строками. Массив 10, 2, 1 превращается в 1, 10, 2.</p>
+    <p><b>Сейчас снова Глеб.</b> Выбор зависит от двух вещей: важен ли порядок равных и есть ли в данных готовые куски. Числа и скорость: std::sort, Array.Sort, Java int. Записи и прежний порядок: list.sort, объекты Java, OrderBy, stable_sort, sort с числовым компаратором.</p>
+  </section>
+
+  <section class="block" id="quiz">
+    <h2>Пять вопросов</h2>
+    <div id="quizBox"></div>
+    <p id="quizScore" class="note">Пока 0 из 0.</p>
+  </section>
+
+  <section class="block" id="book">
+    <h2>Книга гостей команды</h2>
+    <p>Запись остаётся в этом браузере и на диск проекта не уходит.</p>
+    <p><input id="guestText" type="text" maxlength="80" placeholder="имя и пара слов"><button type="button" id="guestAdd">оставить</button></p>
+    <ul class="guest" id="guestList"></ul>
+  </section>
+
+  <section class="block" id="credits">
+    <h2>Титры</h2>
+    <p>Фамилии едут отдельно от лиц: на фото не было подписей. Детский кадр без фамилии. Креветка после титров.</p>
+    <div class="stage" id="creditStage">
+      <div class="stars"></div>
+      <div class="crawl" id="crawl">
+        <article class="credit"><p class="kicker">КИПУ имени Февзи Якубова</p><h3>Команда 7</h3><p>Сортировка в современных языках программирования</p></article>
+        <article class="credit"><p class="role">Лидер</p><h3>Подъячий Глеб</h3><p>Python. Timsort и Powersort.</p></article>
+        <article class="credit"><p class="role">Две функции</p><h3>Керимов Андрей</h3><p>Java. Dual-Pivot для чисел, Timsort для объектов.</p></article>
+        <article class="credit"><p class="role">Предохранитель</p><h3>Мамбетов Родион</h3><p>C#. Introsort и устойчивый OrderBy.</p></article>
+        <article class="credit"><p class="role">На месте или с памятью</p><h3>Черакаев Антон</h3><p>C++. std::sort и std::stable_sort.</p></article>
+        <article class="credit"><p class="role">Ловушка строк</p><h3>Кулиш Артём</h3><p>JavaScript. Timsort в V8 и компаратор для чисел.</p></article>
+        <article class="credit"><p class="kicker">Кадр первый</p><img class="portrait" src="faces/chain.jpg" alt="Короткие волосы, цепь"><p>Съёмочная группа.</p></article>
+        <article class="credit"><p class="kicker">Кадр второй</p><img class="portrait" src="faces/wavy.jpg" alt="Волнистые волосы"><p>Волны без гарантии устойчивости.</p></article>
+        <article class="credit"><p class="kicker">Кадр третий</p><img class="portrait" src="faces/curly.jpg" alt="Кудрявые волосы"><p>Кудри порядка n log n.</p></article>
+        <article class="credit"><p class="kicker">Архив</p><img class="portrait vhs" src="faces/kid.jpg" alt="Архивное фото"><p>Снято задолго до курса. Фамилию не ставим.</p></article>
+        <article class="credit"><p class="kicker">Замер</p><h3>Зерно 7</h3><p>Медиана пяти прогонов после прогрева.</p></article>
+        <article class="credit"><p class="kicker">После титров</p><img class="shrimp-shot" src="faces/shrimp.jpg" alt="Креветка и кольцо"><p>Единственный, кто обогнал std::sort и при этом горел.</p></article>
+        <article class="credit"><h3>Конец</h3><p>Порядок равных и готовые куски в данных решают, какую функцию брать.</p></article>
+      </div>
+      <div class="credits-ui">
+        <button type="button" id="playCredits" class="primary">Пустить титры</button>
+        <button type="button" id="pauseCredits">Пауза</button>
+      </div>
+    </div>
+  </section>
+  <p class="note">Кредиты: курсор Kenney, CC0. Гифки OpenGameArt, CC0. Кнопки и наклейки по краям: gifcity.carrd.co. Шлейф Tinkerbell, mf2fm. Баннеры нарисованы для этой страницы. Радио: NCS Kawaii Mix, NoCopyrightSounds.</p>
+</main>
+</div>
+<div class="wipe" id="wipe" aria-hidden="true"><span></span><span></span></div>
+<div class="deck" id="deck">
+  <img class="deck-sticker" style="top:18px;left:18px" src="gifcity/icon_3a551453.gif" alt="">
+  <img class="deck-sticker" style="top:18px;right:18px" src="gifcity/icon_9b7cb59e.gif" alt="">
+  <img class="deck-sticker" style="bottom:64px;left:18px" src="gifcity/gallery249_fc75801a.gif" alt="">
+  <img class="deck-sticker" style="bottom:64px;right:18px" src="gifcity/02_dd3337c3.gif" alt="">
+  <div class="deck-frame">
+    <article class="deck-slide on">
+      <div class="deck-title">
+        <div>
+          <p class="kicker">КОМАНДА 7 · КИПУ</p>
+          <h2>Сортировка в современных языках</h2>
+          <p>Python, Java, C#, JavaScript, C++<br>28 октября 2026</p>
+          <p>Подъячий Глеб<br>Керимов Андрей<br>Мамбетов Родион<br>Черакаев Антон<br>Кулиш Артём</p>
+        </div>
+        <div class="faces-grid">
+          <img src="faces/chain.jpg" alt="">
+          <img src="faces/wavy.jpg" alt="">
+          <img src="faces/curly.jpg" alt="">
+          <img src="faces/kid.jpg" alt="">
+          <img src="faces/shrimp.jpg" alt="">
+        </div>
+      </div>
+    </article>
+    <article class="deck-slide">
+      <h2>Зачем этот проект</h2>
+      <ul>
+        <li>Одинаковое имя sort прячет разные алгоритмы.</li>
+        <li>Где-то устойчивый Timsort, где-то быстрая сортировка с пирамидой на подхвате.</li>
+        <li>Мы мерили встроенные функции на одних и тех же массивах.</li>
+        <li>Два вопроса до выбора: нужна ли устойчивость и есть ли в данных готовый порядок.</li>
+        <li>Лидер: Подъячий Глеб. Каждый говорит не меньше минуты про свой язык.</li>
+      </ul>
+    </article>
+    <article class="deck-slide">
+      <h2>Семь вызовов</h2>
+      <table>
+        <tr><th>Вызов</th><th>Алгоритм</th><th>Порядок равных</th></tr>
+        <tr><td>Python list.sort</td><td>Timsort, Powersort</td><td>хранит</td></tr>
+        <tr><td>Java int[]</td><td>Dual-Pivot Quicksort</td><td>для чисел неразличим</td></tr>
+        <tr><td>Java Integer[]</td><td>Timsort</td><td>хранит</td></tr>
+        <tr><td>C# Array.Sort</td><td>introsort</td><td>не хранит</td></tr>
+        <tr><td>JavaScript, V8</td><td>Timsort</td><td>язык требует хранить</td></tr>
+        <tr><td>C++ std::sort</td><td>introsort</td><td>не хранит</td></tr>
+        <tr><td>C++ stable_sort</td><td>слияние</td><td>хранит</td></tr>
+      </table>
+    </article>
+    <article class="deck-slide">
+      <h2>Устойчивость на двух двойках</h2>
+      <ul>
+        <li>2 А стояла левее 2 Б. Обе меньше восьмёрки.</li>
+        <li>Устойчивая сортировка ставит числа по возрастанию и не меняет А и Б местами.</li>
+        <li>Неустойчивая может поставить 2 Б левее, хотя значения равны.</li>
+        <li>Проверка была на 400 парах, не на десятке: короткий кусок introsort добивает вставками и случайно сохраняет порядок.</li>
+        <li>Сохранили: Python, JavaScript, объекты Java, std::stable_sort.</li>
+        <li>Сломали: C# Array.Sort и C++ std::sort.</li>
+      </ul>
+      <p class="jumps"><button type="button" data-demo="stable">Две двойки</button></p>
+    </article>
+    <article class="deck-slide">
+      <h2>Timsort и Powersort</h2>
+      <ul>
+        <li>Timsort ищет уже готовые серии: вверх или вниз.</li>
+        <li>Нисходящую серию разворачивает. Короткую добирает вставками до minrun, обычно 32-64.</li>
+        <li>Потом серии сливает. Равные забирает из левой серии, поэтому порядок хранится.</li>
+        <li>Память O(n). На полностью готовом массиве серия одна, время близко к линейному.</li>
+        <li>С Python 3.11 порядок слияния выбирает Powersort: не клеить крошку к гиганту, если рядом ровнее пара.</li>
+        <li>Так устроены Python list.sort, Java для объектов и V8.</li>
+      </ul>
+      <p class="jumps"><button type="button" data-demo="tim">Серии Timsort</button><button type="button" data-demo="insert">Короткие вставки</button></p>
+    </article>
+    <article class="deck-slide">
+      <h2>Python</h2>
+      <p class="who">Подъячий Глеб</p>
+      <ul>
+        <li>list.sort и sorted. Устойчивая адаптивная сортировка слиянием.</li>
+        <li>Случайный миллион: 277 мс. Уже упорядоченный: 5,86 мс.</li>
+        <li>Порядок равных в проверке сохранился.</li>
+        <li>277 мс рядом с Java для объектов (260) и далеко от Java для int (48).</li>
+        <li>Это цена языка и сравнения, не приговор Timsort.</li>
+      </ul>
+    </article>
+    <article class="deck-slide">
+      <h2>Java, две функции</h2>
+      <p class="who">Керимов Андрей</p>
+      <ul>
+        <li>int[]: Dual-Pivot Quicksort. Два опорных, три части, вставки на коротком куске.</li>
+        <li>Готовые серии реализация замечает. Поэтому упорядоченный миллион: 0,11 мс против 48 мс.</li>
+        <li>Integer[]: устойчивый Timsort, на случайном миллионе 260 мс.</li>
+        <li>У голых чисел нет «кто был левее». У объектов есть, и Java это хранит.</li>
+      </ul>
+      <p class="jumps"><button type="button" data-demo="pivot">Два опорных</button></p>
+    </article>
+    <article class="deck-slide">
+      <h2>C#</h2>
+      <p class="who">Мамбетов Родион</p>
+      <ul>
+        <li>Array.Sort это introsort. Кусок короче 17 элементов уходит во вставки.</li>
+        <li>Слишком глубокая рекурсия уходит в пирамиду, худший случай остаётся n log n.</li>
+        <li>Случайный миллион: 48 мс. Порядок равных в проверке сломался.</li>
+        <li>Если порядок важен: LINQ OrderBy. При равенстве сравнивается исходный номер.</li>
+      </ul>
+      <p class="jumps"><button type="button" data-demo="intro">Introsort</button></p>
+    </article>
+    <article class="deck-slide">
+      <h2>JavaScript</h2>
+      <p class="who">Кулиш Артём</p>
+      <ul>
+        <li>С ES2019 сортировка обязана быть устойчивой. Алгоритм стандарт не назначает.</li>
+        <li>Node 24 и Chrome, движок V8, используют Timsort. Замер сделан там.</li>
+        <li>Случайный миллион: 175 мс. Упорядоченный: 8,88 мс. Порядок равных сохранился.</li>
+        <li>Без функции сравнения [10, 2, 1] становится [1, 10, 2]: строки, не числа.</li>
+        <li>Нужный вызов: array.sort((a, b) =&gt; a - b).</li>
+      </ul>
+      <p class="jumps"><button type="button" data-demo="trap">Ловушка строк</button></p>
+    </article>
+    <article class="deck-slide">
+      <h2>C++</h2>
+      <p class="who">Черакаев Антон</p>
+      <ul>
+        <li>Замер на MSVC 2022. std::sort это introsort, на месте, без устойчивости.</li>
+        <li>Вставки до 32 элементов. Плохая глубина уходит в пирамиду.</li>
+        <li>Случайный миллион: std::sort 55 мс, std::stable_sort 52 мс.</li>
+        <li>stable_sort это слияние и в проверке порядок сохранил.</li>
+        <li>Числа и скорость: std::sort. Прежний порядок равных записей: stable_sort.</li>
+      </ul>
+      <p class="jumps"><button type="button" data-demo="intro">std::sort</button><button type="button" data-demo="merge">stable_sort</button></p>
+    </article>
+    <article class="deck-slide">
+      <h2>Как мерили</h2>
+      <ul>
+        <li>Один генератор, зерно 7. Пять рисунков: случайный, вверх, вниз, 10 разных значений, почти упорядоченный.</li>
+        <li>Размеры: 10 тысяч, 100 тысяч, 1 миллион. Все языки читали один файл.</li>
+        <li>Первая попытка выбрасывалась. Дальше медиана пяти. Чтение файла в время не входит.</li>
+        <li>От 100 тысяч к миллиону на случайных данных время выросло примерно в 12-14 раз. Это n log n.</li>
+        <li>Сборка Java шла из латинской временной папки: javac на этой машине портит кириллицу в пути.</li>
+      </ul>
+    </article>
+    <article class="deck-slide chart-slide solo">
+      <div>
+        <h2>Случайный миллион</h2>
+        <img src="results/fig_random.png" alt="Время на случайном миллионе">
+      </div>
+    </article>
+    <article class="deck-slide chart-slide">
+      <div>
+        <h2>Уже упорядоченный миллион</h2>
+        <img src="results/fig_sorted.png" alt="Время на упорядоченном миллионе">
+      </div>
+      <ul>
+        <li>Java int: 0,11 мс вместо 48.</li>
+        <li>Python: 5,86 мс вместо 277.</li>
+        <li>Готовый порядок адаптивные используют.</li>
+      </ul>
+    </article>
+    <article class="deck-slide">
+      <h2>Коротко по цифрам</h2>
+      <ul>
+        <li>C++ не «быстрее как алгоритм». 48 мс и 277 мс это цена языка и объектов.</li>
+        <li>Java int на убывании тоже почти мгновенный, 0,64 мс: видит длинную серию вниз.</li>
+        <li>Стандарт C++ не обязывает именно introsort. Это выбор MSVC. Гарантия: среднее n log n и нет устойчивости.</li>
+        <li>Стандарт JavaScript не обязывает Timsort. Обязывает устойчивость. Timsort здесь потому, что движок V8.</li>
+        <li>Порядок равных у int не проверяли: две одинаковые пятёрки неразличимы.</li>
+      </ul>
+    </article>
+    <article class="deck-slide ink">
+      <h2>Выводы</h2>
+      <ul>
+        <li>sort в разных языках не означает один алгоритм.</li>
+        <li>Хранят порядок и любят готовые серии: Python, V8, объекты Java, std::stable_sort.</li>
+        <li>Быстрые и почти на месте: std::sort, Array.Sort, Java int[].</li>
+        <li>Короткий кусок везде добирают вставками. Квадрат у introsort обрывает пирамида.</li>
+        <li>Выбор зависит от двух вещей: порядок равных и готовые куски в данных.</li>
+        <li>В JavaScript для чисел нужен компаратор (a, b) =&gt; a - b.</li>
+      </ul>
+    </article>
+    <button type="button" class="hit prev" id="deckHitPrev" aria-label="предыдущий слайд"></button>
+    <button type="button" class="hit next" id="deckHitNext" aria-label="следующий слайд"></button>
+  </div>
+  <div class="deck-dots" id="deckDots"></div>
+  <div class="deck-bar">
+    <button type="button" id="deckClose">к сайту</button>
+    <button type="button" id="deckPrev">назад</button>
+    <b id="deckCount">1 / 15</b>
+    <button type="button" id="deckNext" class="primary">дальше</button>
+  </div>
+</div>
+<button type="button" id="backBar" class="backbar">к слайду</button>
+<script>
+const stations = [
+  { name: "Boogie", t: 0 },
+  { name: "blu", t: 72 },
+  { name: "Fall To Light", t: 122 },
+  { name: "Love U", t: 199 },
+  { name: "Any Closer", t: 294 },
+  { name: "Underrated", t: 374 },
+  { name: "Follow Back", t: 443 },
+  { name: "Magnetic", t: 524 },
+  { name: "Halcyon", t: 607 },
+  { name: "Entropy", t: 674 },
+  { name: "Puzzle", t: 840 },
+  { name: "Bubble", t: 914 },
+  { name: "Cetus", t: 982 },
+  { name: "Popsicle", t: 1118 },
+  { name: "Panda", t: 1150 },
+  { name: "Free", t: 1218 },
+  { name: "Energy", t: 1360 },
+  { name: "OMG", t: 1518 },
+  { name: "Nekozilla", t: 1623 },
+  { name: "Skyline", t: 1653 },
+  { name: "Skyline II", t: 1772 },
+  { name: "Imaginary Friends", t: 1867 },
+  { name: "So Happy", t: 1972 },
+  { name: "Campfire", t: 2109 },
+  { name: "Eclipse", t: 2292 },
+  { name: "Donuts", t: 2477 },
+  { name: "Gang", t: 2616 },
+  { name: "Wouldn't Change It", t: 2762 },
+  { name: "harinezumi", t: 2849 }
+];
+const linkStart = 1676;
+let playFrom = linkStart;
+let playing = false;
+let tuned = false;
+let startedAt = 0;
+function stationAt(seconds) {
+  let index = 0;
+  for (let i = 0; i < stations.length; i++) {
+    if (seconds + 0.3 >= stations[i].t) index = i;
+  }
+  return index;
+}
+function liveSeconds() {
+  if (!playing) return playFrom;
+  return playFrom + (performance.now() - startedAt) / 1000;
+}
+function tick() {
+  const clock = new Date().toLocaleTimeString("ru-RU");
+  const label = document.getElementById("clock");
+  if (!tuned) {
+    label.textContent = "сейчас играет: тимсорт в мажоре · " + clock;
+    return;
+  }
+  label.textContent = "радио: " + stations[stationAt(liveSeconds())].name + " · " + clock;
+}
+function radioUrl(seconds) {
+  const start = Math.floor(Math.max(0, seconds));
+  return "https://www.youtube-nocookie.com/embed/iZ3gzxYCAMk?start=" + start + "&autoplay=1&rel=0&playsinline=1&origin=" + encodeURIComponent(location.origin);
+}
+function ensureLocal() {
+  if (location.protocol === "http:" || location.protocol === "https:") return;
+  if (window.__team7Boot) return;
+  window.__team7Boot = true;
+  const frame = document.createElement("iframe");
+  frame.hidden = true;
+  frame.src = "team7://start";
+  document.body.appendChild(frame);
+  let tries = 0;
+  const timer = setInterval(function () {
+    tries += 1;
+    fetch("http://127.0.0.1:8765/demo.html", { mode: "no-cors", cache: "no-store" }).then(function () {
+      clearInterval(timer);
+      location.replace("http://127.0.0.1:8765/demo.html" + location.hash);
+    }).catch(function () {});
+    if (tries > 30) clearInterval(timer);
+  }, 400);
+}
+function loadRadio(seconds) {
+  if (location.protocol === "file:") {
+    ensureLocal();
+    return;
+  }
+  playFrom = Math.max(0, seconds);
+  startedAt = performance.now();
+  playing = true;
+  tuned = true;
+  document.getElementById("radioSet").classList.remove("off");
+  document.getElementById("yt-radio").src = radioUrl(playFrom);
+  document.getElementById("radioToggle").textContent = "пауза";
+  tick();
+}
+ensureLocal();
+function stopRadio() {
+  playFrom = liveSeconds();
+  playing = false;
+  document.getElementById("yt-radio").src = "about:blank";
+  document.getElementById("radioSet").classList.add("off");
+  document.getElementById("radioToggle").textContent = "радио";
+  tick();
+}
+document.getElementById("radioToggle").onclick = function () {
+  if (playing) stopRadio();
+  else loadRadio(playFrom);
+};
+document.getElementById("stationNext").onclick = function () {
+  const index = (stationAt(liveSeconds()) + 1) % stations.length;
+  loadRadio(stations[index].t);
+};
+document.getElementById("stationPrev").onclick = function () {
+  const index = stationAt(liveSeconds());
+  const prev = (index + stations.length - 1) % stations.length;
+  loadRadio(stations[prev].t);
+};
+tick();
+setInterval(tick, 1000);
+const visitKey = "team7-visits";
+function storeGet(key, fallback) {
+  try { return localStorage.getItem(key) ?? fallback; } catch (error) { return fallback; }
+}
+function storeSet(key, value) {
+  try { localStorage.setItem(key, value); } catch (error) {}
+}
+const visits = Number(storeGet(visitKey, "0")) + 1;
+storeSet(visitKey, String(visits));
+document.getElementById("visits").textContent = String(visits);
+const moods = ["устойчивое", "почти упорядоченное", "два опорных", "глубина ещё терпит", "компаратор надет"];
+document.getElementById("mood").textContent = moods[visits % moods.length];
+
+function barsHTML(values, paint) {
+  const max = Math.max(...values, 1);
+  const marks = Array.isArray(paint) && paint.length && typeof paint[0] === "number"
+    ? values.map((_, index) => paint.includes(index) ? "on" : "")
+    : (paint || []);
+  return values.map((value, index) => {
+    const height = 26 + (value / max) * 120;
+    return '<i class="' + (marks[index] || "") + '" style="height:' + height + 'px">' + value + "</i>";
+  }).join("");
+}
+function mountScenes(host, scenes) {
+  host.innerHTML = '<div class="bars"></div><p class="note cap"></p><p><button type="button" data-prev>назад</button> <button type="button" data-next class="primary">дальше</button> <button type="button" data-auto>само</button> <span data-n></span></p>';
+  let index = 0;
+  let timer = null;
+  const paint = () => {
+    const scene = scenes[index];
+    host.querySelector(".bars").innerHTML = barsHTML(scene.bars, scene.paint);
+    host.querySelector(".cap").textContent = scene.text;
+    host.querySelector("[data-n]").textContent = (index + 1) + " / " + scenes.length;
+  };
+  host.querySelector("[data-next]").onclick = () => { index = (index + 1) % scenes.length; paint(); };
+  host.querySelector("[data-prev]").onclick = () => { index = (index + scenes.length - 1) % scenes.length; paint(); };
+  host.querySelector("[data-auto]").onclick = (event) => {
+    if (timer) { clearInterval(timer); timer = null; event.target.textContent = "само"; return; }
+    event.target.textContent = "стоп";
+    timer = setInterval(() => { index = (index + 1) % scenes.length; paint(); }, 1500);
+  };
+  paint();
+}
+function insertionFrames(start) {
+  const frames = [];
+  const values = start.slice();
+  const snap = (text, mark) => frames.push({ bars: values.slice(), paint: mark == null ? [] : [mark], text });
+  snap("Старт. Слева будет расти готовый кусок. Две двойки: левая не должна обогнать правую.", null);
+  for (let i = 1; i < values.length; i++) {
+    let j = i;
+    snap("Берём элемент " + values[j] + " и несём влево, пока левый сосед строго больше.", j);
+    while (j > 0 && values[j - 1] > values[j]) {
+      const tmp = values[j - 1];
+      values[j - 1] = values[j];
+      values[j] = tmp;
+      j -= 1;
+      snap("Сосед больше, меняем. Равных не трогаем, сравнение строгое, вставки устойчивые.", j);
+    }
+  }
+  snap("Короткий кусок готов. Левая двойка осталась левее. На миллионе так нельзя: выйдет квадрат.", null);
+  return frames;
+}
+
+mountScenes(document.getElementById("playInsert"), insertionFrames([4, 2, 5, 2, 1]));
+mountScenes(document.getElementById("playTim"), [
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [], text: "Массив как пришёл: 3, 4, 5, 1, 2, 9, 8, 7. Timsort не ломает его сразу. Он ищет серии, которые уже идут в одну сторону." },
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [0], text: "Смотрим на первое число. Серия пока из одной тройки." },
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [0, 1], text: "Рядом 4. 4 больше 3, серия идёт вверх: 3, 4." },
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [0, 1, 2], text: "Рядом 5. Всё ещё вверх. Первая серия: 3, 4, 5." },
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [3], text: "После 5 стоит 1. Вверх оборвалось. Новая серия начинается с 1." },
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [3, 4], text: "1, потом 2. Снова вверх. Вторая серия: 1, 2. Она короткая. На больших данных такие добирают вставками до minrun, обычно от 32 до 64." },
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [5], text: "После 2 стоит 9. Вверх кончилось. Третья серия начинается с 9." },
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [5, 6], text: "9, потом 8. Это вниз. Нисходящую серию тоже забирают, а потом разворачивают." },
+  { bars: [3, 4, 5, 1, 2, 9, 8, 7], paint: [5, 6, 7], text: "8, потом 7. Вниз продолжается. Серия: 9, 8, 7." },
+  { bars: [3, 4, 5, 1, 2, 7, 8, 9], paint: [5, 6, 7], text: "Разворот. Было 9, 8, 7, стало 7, 8, 9. Теперь серия возрастает, как и две предыдущие." },
+  { bars: [1, 2, 3, 4, 5, 7, 8, 9], paint: [0, 1, 2, 3, 4], text: "Слияние голов. 3 и 1: меньше 1. Потом 2 и 3: меньше 2. Дальше 3, 4, 5. Слева получилось 1, 2, 3, 4, 5, справа уже лежит 7, 8, 9." },
+  { bars: [1, 2, 3, 4, 5, 7, 8, 9], paint: [], text: "Если весь массив уже упорядочен, серия одна, на весь n. Сливать почти нечего. Поэтому готовый миллион у Python занял 5,86 мс вместо 277." },
+  { bars: [1, 2, 3, 4, 5, 7, 8, 9], paint: [0, 1], text: "Powersort выбирает, какие две серии сливать сейчас. Две короткие рядом дешевле соединить друг с другом, чем клеить крошку к гиганту. С Python 3.11 list.sort делает так." }
+]);
+mountScenes(document.getElementById("playMerge"), [
+  { bars: [2, 5, 8, 1, 3, 4], paint: ["on", "on", "on", "lo", "lo", "lo"], text: "Два готовых куска: слева 2, 5, 8 и справа 1, 3, 4. Слияние смотрит только на головы и пишет ответ в третий массив." },
+  { bars: [2, 5, 8, 1, 3, 4], paint: ["piv", "on", "on", "piv", "lo", "lo"], text: "Головы 2 и 1. Сравниваем. 1 меньше, её берём справа." },
+  { bars: [1], paint: ["lo"], text: "В ответе пока [1]. Слева ещё 2, 5, 8. Справа ещё 3, 4." },
+  { bars: [1, 2], paint: ["lo", "lo"], text: "Новые головы: 2 и 3. 2 меньше. Берём слева. В ответе [1, 2]. Слева остались 5, 8. Справа 3, 4." },
+  { bars: [1, 2, 3], paint: ["lo", "lo", "lo"], text: "Головы 5 и 3. 3 меньше. Берём справа. В ответе [1, 2, 3]. Слева 5, 8. Справа 4." },
+  { bars: [1, 2, 3, 4], paint: ["lo", "lo", "lo", "lo"], text: "Головы 5 и 4. 4 меньше. Берём справа. В ответе [1, 2, 3, 4]. Справа пусто." },
+  { bars: [1, 2, 3, 4, 5, 8], paint: [], text: "Левый хвост 5, 8 дописываем без сравнений. Итог 1, 2, 3, 4, 5, 8." },
+  { bars: [2, 2, 5, 8], paint: ["piv", "piv", "on", "on"], text: "Если бы головы были равны, взяли бы левую двойку. Более ранний равный элемент выходит раньше. Поэтому слияние устойчиво." }
+]);
+mountScenes(document.getElementById("playPivot"), [
+  { bars: [8, 3, 6, 1, 9, 4, 7, 2], paint: [], text: "Кусок для схемы: 8, 3, 6, 1, 9, 4, 7, 2. Это картинка идеи, не построчная копия Java." },
+  { bars: [8, 3, 6, 1, 9, 4, 7, 2], paint: ["", "piv", "", "", "", "", "piv", ""], text: "Два опорных: 3 и 7. Левый меньше правого. Меньше 3 поедет влево, больше 7 поедет вправо, остальное встанет между ними." },
+  { bars: [8, 3, 6, 1, 9, 4, 7, 2], paint: ["hi", "piv", "", "", "", "", "piv", ""], text: "Смотрим на 8. Она больше 7, ей место в правой части." },
+  { bars: [3, 6, 1, 9, 4, 2, 7, 8], paint: ["piv", "", "", "", "", "", "piv", "hi"], text: "8 уехала вправо. Правый опорный 7 остаётся границей." },
+  { bars: [1, 3, 6, 9, 4, 2, 7, 8], paint: ["lo", "piv", "", "", "", "", "piv", "hi"], text: "1 меньше 3. Она уезжает влево от левого опорного." },
+  { bars: [1, 2, 3, 6, 4, 7, 8, 9], paint: ["lo", "lo", "piv", "mid", "mid", "piv", "hi", "hi"], text: "2 тоже меньше 3, ушла влево. 6 и 4 между опорными. 9 больше 7, ушла вправо." },
+  { bars: [1, 2, 3, 4, 6, 7, 8, 9], paint: [], text: "Три части готовы. Дальше та же идея на каждой. Короткие хвосты добивают вставками. Равные могут переехать, устойчивости нет. Это путь для int, не для Integer." }
+]);
+mountScenes(document.getElementById("playIntro"), [
+  { bars: [6, 1, 8, 3, 7, 2, 5, 4], paint: [], text: "Introsort начинает как быстрая сортировка и считает, насколько глубоко уже ушёл." },
+  { bars: [6, 1, 8, 3, 7, 2, 5, 4], paint: [3], text: "Опорный для картинки: 3. Всё, что меньше, уйдёт влево. Всё, что больше, уйдёт вправо." },
+  { bars: [1, 2, 3, 6, 7, 8, 5, 4], paint: ["lo", "lo", "piv", "hi", "hi", "hi", "hi", "hi"], text: "Один проход закончен. Слева 1 и 2, справа числа больше 3. Глубина ещё маленькая, можно резать дальше." },
+  { bars: [2, 1], paint: ["on", "on"], text: "Кусок короче порога. В MSVC std::sort порог 32, в C# Array.Sort порог 16. Такой кусок дешевле добить вставками." },
+  { bars: [1, 2], paint: ["on", "on"], text: "Вставка на [2, 1]: левый сосед больше, меняем. Стало 1, 2. На длинном массиве вставки сами по себе не включают." },
+  { bars: [9, 8, 7, 6, 5, 4, 3, 2], paint: ["hi", "hi", "hi", "hi", "hi", "hi", "hi", "hi"], text: "Плохой вход: опорный каждый раз крайний, глубина растёт к n. Когда она больше примерно 2 log n, кусок отдают пирамиде." },
+  { bars: [2, 3, 4, 5, 6, 7, 8, 9], paint: [], text: "Пирамида держит худший случай в O(n log n). Квадрат обрывается. Устойчивости нет: равные при разрезании могут поменяться местами." }
+]);
+mountScenes(document.getElementById("playStr"), [
+  { bars: [10, 2, 1], paint: [], text: "Как числа: 10 больше 2, 2 больше 1. Порядок был бы 1, 2, 10." },
+  { bars: [1, 10, 2], paint: ["on", "on", ""], text: "Как строки сравнивается первый символ. «1» и «1» в «10» равны, «0» меньше, чем конец строки «1». «2» больше «1». Выходит 1, 10, 2." }
+]);
+
+const twins = document.getElementById("twins");
+function chip(text, letter, height, border) {
+  const node = document.createElement("div");
+  node.className = "chip";
+  node.style.height = height + "px";
+  node.style.borderColor = border;
+  node.style.color = border;
+  node.textContent = text + " " + letter;
+  return node;
+}
+function drawTwins(order) {
+  twins.replaceChildren();
+  const spec = { A: ["2", "А", 74, "#ff8ba6"], B: ["2", "Б", 74, "#ffc179"], C: ["8", "", 120, "#8d4330"] };
+  order.forEach((id) => twins.appendChild(chip(...spec[id])));
+}
+function setMode(mode) {
+  ["modeStart", "modeStable", "modeUnstable"].forEach((id) => {
+    document.getElementById(id).classList.toggle("primary", id === mode);
+  });
+  if (mode === "modeStart") {
+    drawTwins(["A", "C", "B"]);
+    document.getElementById("modeText").textContent = "Сначала 2 А, потом восьмёрка, потом 2 Б.";
+  } else if (mode === "modeStable") {
+    drawTwins(["A", "B", "C"]);
+    document.getElementById("modeText").textContent = "Числа встали по возрастанию, 2 А осталась левее 2 Б. Так сделали Python, JavaScript, объекты Java и std::stable_sort.";
+  } else {
+    drawTwins(["B", "A", "C"]);
+    document.getElementById("modeText").textContent = "2 Б оказалась левее 2 А. Так на 400 элементах поступили C# Array.Sort и C++ std::sort.";
+  }
+}
+document.getElementById("modeStart").onclick = () => setMode("modeStart");
+document.getElementById("modeStable").onclick = () => setMode("modeStable");
+document.getElementById("modeUnstable").onclick = () => setMode("modeUnstable");
+setMode("modeStart");
+
+function showTrap(good) {
+  const source = [10, 2, 1];
+  const result = source.slice().sort(good ? (a, b) => a - b : undefined);
+  document.getElementById("trapOut").textContent = "[" + result.join(", ") + "]";
+  document.getElementById("trapText").textContent = good
+    ? "С функцией (a, b) => a - b получается числовой порядок: 1, 2, 10."
+    : "Без функции получилось " + result.join(", ") + ". Строка «10» меньше строки «2».";
+  document.getElementById("trapBad").classList.toggle("primary", !good);
+  document.getElementById("trapGood").classList.toggle("primary", good);
+}
+document.getElementById("trapBad").onclick = () => showTrap(false);
+document.getElementById("trapGood").onclick = () => showTrap(true);
+
+function paintCost() {
+  const n = Number(document.getElementById("nslide").value);
+  document.getElementById("nlab").textContent = n.toLocaleString("ru-RU");
+  const base = 1000;
+  const linear = n / base;
+  const nlog = (n * Math.log2(n)) / (base * Math.log2(base));
+  const square = (n / base) * (n / base);
+  const max = square;
+  document.getElementById("barN").style.width = Math.min(100, linear / max * 100) + "%";
+  document.getElementById("barL").style.width = Math.min(100, nlog / max * 100) + "%";
+  document.getElementById("barQ").style.width = "100%";
+  document.getElementById("costText").textContent = "Относительно 1 000 элементов: прямая ×" + linear.toFixed(0) + ", n log n ×" + nlog.toFixed(0) + ", квадрат ×" + square.toFixed(0) + ".";
+}
+document.getElementById("nslide").oninput = paintCost;
+paintCost();
+
+const questions = [
+  { q: "sort() без функции на [10, 2, 1] в JavaScript даёт", answers: ["[1, 2, 10]", "[1, 10, 2]", "[10, 2, 1]"], ok: 1 },
+  { q: "Какой вызов в Java хранит порядок равных объектов?", answers: ["Arrays.sort для int[]", "Arrays.sort для Integer[]", "оба"], ok: 1 },
+  { q: "Чем introsort обрывает квадратичный худший случай?", answers: ["подсчётом", "пирамидой", "ещё одной быстрой сортировкой"], ok: 1 },
+  { q: "Почему готовый массив для Timsort почти линейный?", answers: ["потому что n маленькое", "потому что серия одна, на весь массив", "потому что выключаются сравнения"], ok: 1 },
+  { q: "std::sort в MSVC обязан сохранить порядок равных?", answers: ["да, стандарт требует", "нет", "только для чётного n"], ok: 1 }
+];
+const quizBox = document.getElementById("quizBox");
+let answered = 0, correct = 0;
+questions.forEach((item, index) => {
+  const block = document.createElement("div");
+  block.className = "card";
+  block.innerHTML = "<p><b>" + (index + 1) + ".</b> " + item.q + "</p>";
+  item.answers.forEach((answer, answerIndex) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = answer;
+    button.onclick = () => {
+      if (block.dataset.done) return;
+      block.dataset.done = "1";
+      answered += 1;
+      const good = answerIndex === item.ok;
+      if (good) correct += 1;
+      button.classList.add(good ? "primary" : "on");
+      const mark = document.createElement("p");
+      mark.className = good ? "ok" : "bad";
+      mark.textContent = good ? "Да." : "Нет. Верный ответ: " + item.answers[item.ok] + ".";
+      block.appendChild(mark);
+      document.getElementById("quizScore").textContent = "Верно " + correct + " из " + answered + ".";
+    };
+    block.appendChild(button);
+    block.appendChild(document.createTextNode(" "));
+  });
+  quizBox.appendChild(block);
+});
+
+const guestKey = "team7-guest";
+const guestList = document.getElementById("guestList");
+function paintGuest() {
+  let items = [];
+  try { items = JSON.parse(storeGet(guestKey, "[]")); } catch (error) { items = []; }
+  guestList.innerHTML = items.map((line) => "<li>" + line.replace(/[&<>]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[ch])) + "</li>").join("");
+}
+paintGuest();
+document.getElementById("guestAdd").onclick = () => {
+  const input = document.getElementById("guestText");
+  const text = input.value.trim();
+  if (!text) return;
+  const items = JSON.parse(storeGet(guestKey, "[]"));
+  items.unshift(text);
+  storeSet(guestKey, JSON.stringify(items.slice(0, 8)));
+  input.value = "";
+  paintGuest();
+};
+
+const creditStage = document.getElementById("creditStage");
+const crawl = document.getElementById("crawl");
+let faceLoop = 0;
+function revealFaces() {
+  const box = creditStage.getBoundingClientRect();
+  crawl.querySelectorAll("img").forEach((img) => {
+    const rect = img.getBoundingClientRect();
+    const visible = Math.min(rect.bottom, box.bottom) - Math.max(rect.top, box.top);
+    if (visible > rect.height * 0.35) img.classList.add("in");
+  });
+  if (creditStage.classList.contains("running") && !creditStage.classList.contains("paused")) faceLoop = requestAnimationFrame(revealFaces);
+}
+function stopCredits() {
+  creditStage.classList.remove("running", "paused");
+  cancelAnimationFrame(faceLoop);
+}
+document.getElementById("playCredits").onclick = () => {
+  crawl.querySelectorAll("img").forEach((img) => img.classList.remove("in"));
+  creditStage.classList.remove("running", "paused");
+  void crawl.offsetWidth;
+  creditStage.classList.add("running");
+  faceLoop = requestAnimationFrame(revealFaces);
+  document.getElementById("playCredits").textContent = "Ещё раз";
+};
+document.getElementById("pauseCredits").onclick = () => {
+  if (!creditStage.classList.contains("running")) return;
+  const paused = creditStage.classList.toggle("paused");
+  document.getElementById("pauseCredits").textContent = paused ? "Дальше" : "Пауза";
+  if (!paused) faceLoop = requestAnimationFrame(revealFaces);
+};
+crawl.addEventListener("animationend", (event) => { if (event.target === crawl) stopCredits(); });
+
+let audioCtx = null, pompTimer = null;
+document.getElementById("pomp").onclick = () => {
+  const button = document.getElementById("pomp");
+  if (pompTimer) {
+    clearInterval(pompTimer);
+    pompTimer = null;
+    button.classList.remove("on");
+    button.textContent = "пафос выкл";
+    return;
+  }
+  audioCtx = audioCtx || new AudioContext();
+  const notes = [523, 659, 784, 659, 880, 784, 659, 523];
+  let step = 0;
+  const beep = () => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "triangle";
+    osc.frequency.value = notes[step % notes.length];
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.035, audioCtx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.22);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.24);
+    step += 1;
+  };
+  beep();
+  pompTimer = setInterval(beep, 280);
+  button.classList.add("on");
+  button.textContent = "пафос вкл";
+};
+
+const critterFiles = [
+  "gifcity/icon_3a551453.gif", "gifcity/icon_9b7cb59e.gif", "gifcity/icon_6fa3ef35.gif",
+  "gifcity/icon_58000a7d.gif", "gifcity/icon_f060a0f0.gif", "gifcity/icon_3a8f55d3.gif",
+  "gifcity/icon_4a2c45cd.gif", "gifcity/icon_08284c3c.gif", "gifcity/icon_1c5e91ba.gif",
+  "gifcity/icon_acec06d0.gif", "gifcity/icon_6294ef50.gif", "gifcity/icon_e791ba55.gif",
+  "gifcity/icon_07d05094.gif", "gifcity/icon_d94fd6a7.gif", "gifcity/icon_abd8a49f.gif",
+  "gifcity/icon_63e64bec.gif", "gifcity/icon_774b94ba.gif", "gifcity/icon_afcf929d.gif",
+  "gifcity/icon_199d08cc.gif", "gifcity/icon_eeb88322.gif",
+  "gifcity/gallery249_fc75801a.gif", "gifcity/02_dd3337c3.gif"
+];
+const critterHost = document.getElementById("critters");
+const herd = critterFiles.map(function (src, index) {
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = "";
+  critterHost.appendChild(img);
+  return {
+    el: img,
+    x: 40 + (index * 97) % Math.max(200, window.innerWidth - 40),
+    y: 80 + (index * 53) % Math.max(160, window.innerHeight - 40),
+    vx: (index % 2 ? 1 : -1) * (0.6 + (index % 5) * 0.15),
+    vy: (index % 3 ? 0.7 : -0.8),
+    size: src.indexOf("shrimp") !== -1 ? 74 : (src.indexOf("icon_") === -1 ? 42 : 26 + (index % 4) * 4)
+  };
+});
+let pointerX = -9999;
+let pointerY = -9999;
+let lineUntil = 0;
+let winX = window.screenX;
+let winY = window.screenY;
+let shakeUntil = 0;
+window.addEventListener("mousemove", function (event) {
+  pointerX = event.clientX;
+  pointerY = event.clientY;
+});
+document.getElementById("lineup").onclick = function () {
+  lineUntil = performance.now() + 4200;
+};
+const calmMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function bumpHerd(shaking) {
+  for (let i = 0; i < herd.length; i++) {
+    for (let j = i + 1; j < herd.length; j++) {
+      const a = herd[i];
+      const b = herd[j];
+      const dx = (b.x + b.size / 2) - (a.x + a.size / 2);
+      const dy = (b.y + b.size / 2) - (a.y + a.size / 2);
+      const dist = Math.hypot(dx, dy) || 0.01;
+      const min = (a.size + b.size) * 0.42;
+      if (dist >= min) continue;
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const overlap = (min - dist) / 2;
+      a.x -= nx * overlap;
+      a.y -= ny * overlap;
+      b.x += nx * overlap;
+      b.y += ny * overlap;
+      const va = a.vx * nx + a.vy * ny;
+      const vb = b.vx * nx + b.vy * ny;
+      const kick = shaking ? 1.25 : 0.85;
+      a.vx += (vb - va) * nx * kick;
+      a.vy += (vb - va) * ny * kick;
+      b.vx += (va - vb) * nx * kick;
+      b.vy += (va - vb) * ny * kick;
+    }
+  }
+}
+function placeHerd(now) {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const sorting = now < lineUntil;
+  const moveX = window.screenX - winX;
+  const moveY = window.screenY - winY;
+  winX = window.screenX;
+  winY = window.screenY;
+  if (Math.hypot(moveX, moveY) > 4) shakeUntil = now + 800;
+  const shaking = now < shakeUntil;
+  herd.forEach(function (bug, index) {
+    if (!calmMotion) {
+      if (shaking && !sorting) {
+        bug.vx -= moveX * 0.55;
+        bug.vy -= moveY * 0.55;
+      }
+      if (sorting) {
+        const targetX = 16 + (index % 11) * 34;
+        const targetY = 64 + Math.floor(index / 11) * 36;
+        bug.vx += (targetX - bug.x) * 0.05;
+        bug.vy += (targetY - bug.y) * 0.05;
+      } else {
+        const dx = bug.x + bug.size / 2 - pointerX;
+        const dy = bug.y + bug.size / 2 - pointerY;
+        const dist = Math.hypot(dx, dy) || 1;
+        if (dist < 120) {
+          const push = (120 - dist) / 120;
+          bug.vx += (dx / dist) * push * 2.6;
+          bug.vy += (dy / dist) * push * 2.6;
+        }
+        bug.vx += Math.sin(now / 700 + index) * 0.02;
+        bug.vy += Math.cos(now / 900 + index) * 0.02;
+      }
+      bug.vx *= 0.96;
+      bug.vy *= 0.96;
+      const speed = Math.hypot(bug.vx, bug.vy);
+      const limit = shaking ? 14 : 8;
+      if (speed > limit) {
+        bug.vx *= limit / speed;
+        bug.vy *= limit / speed;
+      }
+      bug.x += bug.vx;
+      bug.y += bug.vy;
+      if (bug.x < 0 || bug.x > width - bug.size) {
+        bug.vx *= -1;
+        bug.x = Math.max(0, Math.min(width - bug.size, bug.x));
+      }
+      if (bug.y < 0 || bug.y > height - bug.size) {
+        bug.vy *= -1;
+        bug.y = Math.max(0, Math.min(height - bug.size, bug.y));
+      }
+    }
+  });
+  if (!calmMotion && shaking) bumpHerd(true);
+  herd.forEach(function (bug) {
+    const under = document.elementFromPoint(bug.x + bug.size / 2, bug.y + bug.size / 2);
+    const onText = under && under.closest("p, h1, h2, h3, li, td, th, button, a, label, .card, .note, .explain");
+    bug.el.style.opacity = onText ? "0.35" : "1";
+    bug.el.style.width = bug.size + "px";
+    bug.el.style.transform = "translate(" + bug.x + "px," + bug.y + "px) rotate(" + (bug.vx * 6) + "deg)";
+  });
+  if (!calmMotion) requestAnimationFrame(placeHerd);
+}
+const deckSlides = Array.prototype.slice.call(document.querySelectorAll(".deck-slide"));
+const deckDots = document.getElementById("deckDots");
+let deckIndex = 0;
+deckSlides.forEach(function (_, index) {
+  const dot = document.createElement("button");
+  dot.type = "button";
+  dot.title = "слайд " + (index + 1);
+  if (index === 0) dot.className = "on";
+  dot.onclick = function () { showDeckSlide(index); };
+  deckDots.appendChild(dot);
+});
+function showDeckSlide(next) {
+  const dir = next >= deckIndex ? 1 : -1;
+  const total = deckSlides.length;
+  next = (next + total) % total;
+  if (next === deckIndex) return;
+  deckSlides.forEach(function (slide, index) {
+    slide.classList.remove("on", "left", "right");
+    if (index === next) slide.classList.add("on", dir > 0 ? "right" : "left");
+    else if (index === deckIndex) slide.classList.add(dir > 0 ? "left" : "right");
+  });
+  deckIndex = next;
+  document.getElementById("deckCount").textContent = (next + 1) + " / " + total;
+  Array.prototype.forEach.call(deckDots.children, function (dot, index) {
+    dot.classList.toggle("on", index === next);
+  });
+  void deckSlides[next].offsetWidth;
+  deckSlides[next].classList.remove("left", "right");
+}
+function runWipe() {
+  const wipe = document.getElementById("wipe");
+  wipe.classList.remove("go");
+  void wipe.offsetWidth;
+  wipe.classList.add("go");
+}
+function openDeck() {
+  if (document.body.classList.contains("deck-mode")) return;
+  runWipe();
+  window.setTimeout(function () {
+    document.body.classList.add("deck-mode");
+    document.getElementById("deck").classList.add("open");
+    if (location.hash !== "#slides") history.replaceState(null, "", "#slides");
+  }, calmMotion ? 0 : 240);
+}
+function closeDeck() {
+  if (!document.body.classList.contains("deck-mode")) return;
+  runWipe();
+  window.setTimeout(function () {
+    document.getElementById("deck").classList.remove("open");
+    document.body.classList.remove("deck-mode");
+    if (location.hash === "#slides") history.replaceState(null, "", location.pathname + location.search);
+  }, calmMotion ? 0 : 240);
+}
+document.getElementById("openDeck").onclick = openDeck;
+document.getElementById("openDeckSide").onclick = openDeck;
+document.getElementById("openDeckHero").onclick = openDeck;
+let returnSlide = 0;
+function showDemo(anchor) {
+  returnSlide = deckIndex;
+  closeDeck();
+  window.setTimeout(function () {
+    const bar = document.getElementById("backBar");
+    bar.textContent = "к слайду " + (returnSlide + 1);
+    bar.classList.add("on");
+    const node = document.getElementById(anchor);
+    if (node) node.scrollIntoView({ behavior: calmMotion ? "auto" : "smooth", block: "start" });
+  }, calmMotion ? 0 : 520);
+}
+function backToSlide() {
+  document.getElementById("backBar").classList.remove("on");
+  openDeck();
+}
+Array.prototype.forEach.call(document.querySelectorAll("[data-demo]"), function (button) {
+  button.onclick = function (event) {
+    event.stopPropagation();
+    showDemo(button.getAttribute("data-demo"));
+  };
+});
+document.getElementById("backBar").onclick = backToSlide;
+document.getElementById("deckClose").onclick = function () {
+  document.getElementById("backBar").classList.remove("on");
+  closeDeck();
+};
+document.getElementById("deckPrev").onclick = function () { showDeckSlide(deckIndex - 1); };
+document.getElementById("deckNext").onclick = function () { showDeckSlide(deckIndex + 1); };
+document.getElementById("deckHitPrev").onclick = function () { showDeckSlide(deckIndex - 1); };
+document.getElementById("deckHitNext").onclick = function () { showDeckSlide(deckIndex + 1); };
+document.addEventListener("keydown", function (event) {
+  if (!document.body.classList.contains("deck-mode")) return;
+  if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+    event.preventDefault();
+    showDeckSlide(deckIndex + 1);
+  } else if (event.key === "ArrowLeft" || event.key === "PageUp") {
+    event.preventDefault();
+    showDeckSlide(deckIndex - 1);
+  } else if (event.key === "Escape") {
+    closeDeck();
+  } else if (event.key === "Home") {
+    showDeckSlide(0);
+  } else if (event.key === "End") {
+    showDeckSlide(deckSlides.length - 1);
+  }
+});
+if (location.hash === "#slides") openDeck();
+requestAnimationFrame(placeHerd);
+</script>
+<script src="sparkle.js"></script>
+</body>
+</html>

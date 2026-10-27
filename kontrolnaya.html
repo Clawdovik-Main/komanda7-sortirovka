@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Контрольная. Варианты сортировок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#8d4330; --pink:#ff8ba6; --peach:#ffd6b7; --gold:#ffc179; --cream:#fff6ee; --paper:#ffe7d4; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink);
+    font-family: "Balsamiq Sans", "Segoe Print", "Comic Sans MS", cursive;
+    line-height: 1.45;
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 12px 12px, rgba(255,139,166,.28) 2px, transparent 3px),
+      linear-gradient(rgba(255,193,121,.22) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,139,166,.14) 1px, transparent 1px);
+    background-size: 28px 28px, 100% 22px, 22px 100%;
+  }
+  a, button, label, select, input { cursor: pointer; }
+  .topbar { position: sticky; top: 0; z-index: 20; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 12px; background: linear-gradient(#fff, #ffe0ea); border-bottom: 4px solid #fff; box-shadow: 0 4px 0 var(--pink); }
+  .topbar a, button {
+    font: inherit; border: 3px double #fff; background: #fff; color: var(--ink);
+    border-radius: 999px; padding: 7px 12px; box-shadow: 3px 3px 0 var(--peach); text-decoration: none;
+  }
+  .topbar a.on, button.on, button.primary { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--pink); }
+  .layout { max-width: 1180px; margin: 0 auto; padding: 12px; display: grid; grid-template-columns: 280px 1fr; gap: 12px; }
+  aside, .block {
+    background: rgba(255,246,238,.94);
+    border: 3px double var(--pink);
+    box-shadow: 0 0 0 5px #fff, 0 0 0 8px var(--gold);
+    border-radius: 22px;
+  }
+  aside { position: sticky; top: 64px; align-self: start; max-height: calc(100vh - 80px); overflow: auto; padding: 12px; }
+  .block { padding: 14px 16px 18px; }
+  h1, h2, h3 { font-family: "Unbounded", "Trebuchet MS", sans-serif; }
+  h1 { font-size: 26px; line-height: 1.15; margin: 0 0 8px; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  h3 { font-size: 16px; margin: 0 0 8px; }
+  .kicker { letter-spacing: .12em; font-size: 12px; margin: 0 0 4px; }
+  input[type="text"], select { font: inherit; width: 100%; border: 2px solid var(--pink); border-radius: 10px; padding: 6px 8px; background: #fff; color: var(--ink); margin: 4px 0 8px; }
+  .team { display: flex; flex-direction: column; gap: 6px; }
+  .team button { text-align: left; }
+  .fact { background: #fff; border: 2px dashed var(--pink); border-radius: 12px; padding: 8px; margin-top: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chips b { min-width: 36px; text-align: center; background: #fff; border: 3px solid var(--ink); border-radius: 10px; padding: 4px 6px; }
+  .tasks { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .stage { background: #fff; border-radius: 16px; padding: 10px; border: 3px double var(--gold); min-height: 180px; }
+  .bars { display: flex; align-items: flex-end; gap: 6px; min-height: 160px; justify-content: center; flex-wrap: wrap; }
+  .bar { width: 48px; text-align: center; }
+  .bar i { display: flex; align-items: flex-end; justify-content: center; width: 100%; border: 3px solid var(--ink); border-radius: 10px 10px 4px 4px; font-style: normal; font-weight: 700; background: #fff; }
+  .bar small { display: block; font-size: 12px; }
+  .bar.sorted i { background: #d7f5e3; }
+  .bar.key i { background: var(--gold); }
+  .bar.hot i { background: #ffd0dc; }
+  .bar.left i { background: #d9ecff; }
+  .bar.right i { background: var(--peach); }
+  .bar.pivot i { background: var(--ink); color: #fff; }
+  .bar.written i { background: var(--gold); outline: 3px solid var(--ink); }
+  .bar.dim { opacity: .35; }
+  .rowline { margin: 8px 0; }
+  .rowline span { display: inline-block; min-width: 28px; margin: 2px; padding: 4px 2px; text-align: center; border-radius: 8px; background: #fff; border: 2px solid #f3c3cf; font-weight: 700; }
+  .rowline span.on { background: var(--gold); border-color: var(--ink); }
+  .rowline span.empty { opacity: .45; }
+  svg.tree { width: 100%; height: 340px; display: block; }
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  input[type="range"] { flex: 1; min-width: 140px; accent-color: var(--pink); }
+  .note { background: #fff; border: 2px dashed var(--pink); border-radius: 12px; padding: 8px 10px; }
+  .count { font-variant-numeric: tabular-nums; }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; max-height: none; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="demo.html">защита</a>
+  <a class="on" href="kontrolnaya.html">контрольная</a>
+  <span>срок 29.11.2026, у каждого свой массив</span>
+</div>
+<div class="layout">
+<aside>
+  <p class="kicker">ВАРИАНТ</p>
+  <h2>Чей массив</h2>
+  <input id="q" type="text" placeholder="фамилия" autocomplete="off">
+  <select id="who" size="8"></select>
+  <div class="team" id="team"></div>
+  <div class="fact" id="fact"></div>
+</aside>
+<main>
+  <section class="block">
+    <p class="kicker">КОНТРОЛЬНАЯ, НЕ ЗАЩИТА КОМАНДЫ</p>
+    <h1 id="headline">Пошагово по своему варианту</h1>
+    <p>Семь заданий одни и те же. Меняется строка чисел. Индексы с 1, как в лабораторных: A[1] это столбец a0 в таблице преподавателя. Кнопки листают каждый сдвиг, а не только итог.</p>
+    <div class="tasks" id="tasks"></div>
+    <h3 id="stepTitle"></h3>
+    <p class="note" id="stepText"></p>
+    <div class="stage" id="stage"></div>
+    <div class="controls">
+      <button type="button" id="prev">назад</button>
+      <button type="button" id="play" class="primary">пуск</button>
+      <button type="button" id="next">вперёд</button>
+      <input id="scrub" type="range" min="0" max="0" value="0">
+      <b class="count" id="count">1 / 1</b>
+    </div>
+  </section>
+</main>
+</div>
+<script src="students.js"></script>
+<script src="quiz_core.js"></script>
+<script>
+if (!window.QUIZ_STUDENTS) {
+  window.QUIZ_STUDENTS = [
+    { variant: 26, name: "Черакаев Антон Александрович", arr: [4, 8, 0, 2, 3, 5, 6, 9, 1, 7], pa: 3, pb: 4 },
+    { variant: 41, name: "Керимов Андрей Эдуардович", arr: [1, 2, 6, 9, 7, 4, 5, 3, 0, 8], pa: 2, pb: 9 },
+    { variant: 43, name: "Кулиш Артём Евгеньевич", arr: [6, 3, 0, 4, 5, 8, 9, 7, 2, 1], pa: 4, pb: 3 },
+    { variant: 45, name: "Мамбетов Родион Рудемович", arr: [6, 5, 7, 4, 2, 0, 3, 1, 8, 9], pa: 6, pb: 6 },
+    { variant: 51, name: "Подъячий Глеб Русланович", arr: [9, 0, 5, 4, 3, 8, 1, 2, 6, 7], pa: 2, pb: 9 }
+  ];
+}
+</script>
+<script>
+(function () {
+  var students = window.QUIZ_STUDENTS.slice();
+  var team = [
+    "Подъячий Глеб Русланович",
+    "Керимов Андрей Эдуардович",
+    "Мамбетов Родион Рудемович",
+    "Черакаев Антон Александрович",
+    "Кулиш Артём Евгеньевич"
+  ];
+  var who = document.getElementById("who");
+  var q = document.getElementById("q");
+  var fact = document.getElementById("fact");
+  var tasksEl = document.getElementById("tasks");
+  var stage = document.getElementById("stage");
+  var titleEl = document.getElementById("stepTitle");
+  var textEl = document.getElementById("stepText");
+  var countEl = document.getElementById("count");
+  var scrub = document.getElementById("scrub");
+  var playBtn = document.getElementById("play");
+  var work = null;
+  var frames = [];
+  var taskButtons = [];
+  var index = 0;
+  var taskIndex = 0;
+  var timer = null;
+
+  function fillSelect() {
+    var needle = q.value.trim().toLowerCase();
+    who.innerHTML = "";
+    students.forEach(function (s, i) {
+      if (needle && s.name.toLowerCase().indexOf(needle) === -1 && String(s.variant).indexOf(needle) === -1) return;
+      var opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = s.variant + ". " + s.name;
+      who.appendChild(opt);
+    });
+  }
+
+  function current() {
+    var opt = who.options[who.selectedIndex];
+    if (!opt) return students[0];
+    return students[Number(opt.value)];
+  }
+
+  function selectName(name) {
+    q.value = "";
+    fillSelect();
+    var found = students.findIndex(function (s) { return s.name === name; });
+    for (var i = 0; i < who.options.length; i++) {
+      if (Number(who.options[i].value) === found) who.selectedIndex = i;
+    }
+    loadStudent();
+  }
+
+  team.forEach(function (name) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = name.split(" ")[0] + " " + name.split(" ")[1];
+    b.onclick = function () { selectName(name); };
+    document.getElementById("team").appendChild(b);
+  });
+
+  function stop() {
+    if (timer) clearInterval(timer);
+    timer = null;
+    playBtn.textContent = "пуск";
+    playBtn.classList.add("primary");
+  }
+
+  function loadStudent() {
+    stop();
+    var s = current();
+    work = QuizCore.buildWork(s);
+    fact.innerHTML = "<b>Вариант " + s.variant + "</b><br>" + s.name +
+      "<div class='chips'>" + s.arr.map(function (n) { return "<b>" + n + "</b>"; }).join("") + "</div>" +
+      "Для задания 7: a = " + s.pa + ", b = " + s.pb + ", c &gt; 1.<br>Для задания 6: k = 5.";
+    document.getElementById("headline").textContent = s.name;
+    tasksEl.innerHTML = "";
+    var shortNames = ["Вставки", "Слияние", "Подсчёт", "Пирамида", "Быстрая", "Выбор k=5", "Дерево"];
+    taskButtons = work.tasks.map(function (task, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = (i + 1) + ". " + shortNames[i];
+      b.onclick = function () { openTask(i); };
+      tasksEl.appendChild(b);
+      return b;
+    });
+    openTask(0);
+  }
+
+  function openTask(i) {
+    stop();
+    taskIndex = i;
+    taskButtons.forEach(function (b, j) { b.classList.toggle("on", j === i); });
+    frames = QuizCore.flatFrames(work.tasks[i]);
+    scrub.max = String(Math.max(0, frames.length - 1));
+    show(0);
+  }
+
+  function show(i) {
+    index = Math.max(0, Math.min(frames.length - 1, i));
+    scrub.value = String(index);
+    var f = frames[index];
+    titleEl.textContent = "Шаг " + (index + 1) + ". " + f.title;
+    textEl.textContent = f.text;
+    countEl.textContent = (index + 1) + " / " + frames.length;
+    stage.innerHTML = "";
+    if (f.kind === "count") drawCount(f);
+    else if (f.kind === "heap") drawHeap(f);
+    else if (f.kind === "recur") drawRecur(f);
+    else drawBars(f.a, f.marks || []);
+  }
+
+  function drawBars(arr, marks) {
+    var wrap = document.createElement("div");
+    wrap.className = "bars";
+    arr.forEach(function (value, i) {
+      var cell = document.createElement("div");
+      var cls = (marks[i] || "").split(" ").filter(Boolean)[0] || "";
+      cell.className = "bar " + cls;
+      var h = 28 + Number(value) * 12;
+      cell.innerHTML = "<i style='height:" + h + "px'>" + value + "</i><small>" + (i + 1) + "</small>";
+      wrap.appendChild(cell);
+    });
+    stage.appendChild(wrap);
+  }
+
+  function drawCount(f) {
+    drawBars(f.a, f.a.map(function (_, i) { return i === f.markA ? "hot" : ""; }));
+    stage.appendChild(line("C, ключи 0.." + (f.c.length - 1), f.c, f.markC, false));
+    stage.appendChild(line("B, ответ", f.b, f.markB, true));
+  }
+
+  function line(label, xs, mark, emptyDot) {
+    var p = document.createElement("div");
+    p.className = "rowline";
+    var html = "<div>" + label + "</div>";
+    xs.forEach(function (value, i) {
+      var on = i === mark ? " on" : "";
+      var empty = value === null ? " empty" : "";
+      var shown = value === null ? "." : value;
+      html += "<span class='" + on + empty + "'>" + shown + "</span>";
+    });
+    p.innerHTML = html;
+    return p;
+  }
+
+  function drawHeap(f) {
+    var n = f.a.length;
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 920 360");
+    svg.setAttribute("class", "tree");
+    function pos(i) {
+      var level = Math.floor(Math.log2(i));
+      var idx = i - Math.pow(2, level);
+      var count = Math.pow(2, level);
+      return { x: ((idx + 0.5) / count) * 860 + 30, y: 42 + level * 88 };
+    }
+    for (var i = 2; i <= n; i++) {
+      var p = pos(Math.floor(i / 2));
+      var c = pos(i);
+      var lineEl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      lineEl.setAttribute("x1", p.x); lineEl.setAttribute("y1", p.y);
+      lineEl.setAttribute("x2", c.x); lineEl.setAttribute("y2", c.y);
+      lineEl.setAttribute("stroke", i > f.heapSize ? "#e7c3bf" : "#8d4330");
+      lineEl.setAttribute("stroke-width", "3");
+      svg.appendChild(lineEl);
+    }
+    for (var j = 1; j <= n; j++) {
+      var at = pos(j);
+      var mark = (f.marks[j - 1] || "").split(" ")[0];
+      var fill = "#fff";
+      if (mark === "sorted" || j > f.heapSize) fill = "#d7f5e3";
+      if (mark === "hot" || mark === "key") fill = "#ffd0dc";
+      if (mark === "left") fill = "#d9ecff";
+      if (mark === "right") fill = "#ffd6b7";
+      if (mark === "written") fill = "#ffc179";
+      var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("cx", at.x); circle.setAttribute("cy", at.y); circle.setAttribute("r", "22");
+      circle.setAttribute("fill", fill); circle.setAttribute("stroke", "#8d4330"); circle.setAttribute("stroke-width", "3");
+      svg.appendChild(circle);
+      var t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", at.x); t.setAttribute("y", at.y + 5);
+      t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "16"); t.setAttribute("font-weight", "700");
+      t.setAttribute("fill", "#8d4330");
+      t.textContent = String(f.a[j - 1]);
+      svg.appendChild(t);
+      var lab = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      lab.setAttribute("x", at.x); lab.setAttribute("y", at.y + 38);
+      lab.setAttribute("text-anchor", "middle"); lab.setAttribute("font-size", "11"); lab.setAttribute("fill", "#8d4330");
+      lab.textContent = String(j);
+      svg.appendChild(lab);
+    }
+    stage.appendChild(svg);
+    drawBars(f.a, f.marks || []);
+  }
+
+  function drawRecur(f) {
+    var r = f.recur;
+    var phase = r.phase;
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 920 300");
+    svg.setAttribute("class", "tree");
+    function node(x, y, label, sub) {
+      var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", x - 54); rect.setAttribute("y", y - 24);
+      rect.setAttribute("width", "108"); rect.setAttribute("height", "48");
+      rect.setAttribute("rx", "12"); rect.setAttribute("fill", "#fff"); rect.setAttribute("stroke", "#8d4330"); rect.setAttribute("stroke-width", "3");
+      g.appendChild(rect);
+      var t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", x); t.setAttribute("y", y - 2); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "14"); t.setAttribute("font-weight", "700"); t.setAttribute("fill", "#8d4330");
+      t.textContent = label;
+      g.appendChild(t);
+      var s = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      s.setAttribute("x", x); s.setAttribute("y", y + 16); s.setAttribute("text-anchor", "middle");
+      s.setAttribute("font-size", "12"); s.setAttribute("fill", "#8d4330");
+      s.textContent = sub;
+      g.appendChild(s);
+      svg.appendChild(g);
+    }
+    function edge(x1, y1, x2, y2) {
+      var lineEl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      lineEl.setAttribute("x1", x1); lineEl.setAttribute("y1", y1);
+      lineEl.setAttribute("x2", x2); lineEl.setAttribute("y2", y2);
+      lineEl.setAttribute("stroke", "#ff8ba6"); lineEl.setAttribute("stroke-width", "3");
+      svg.appendChild(lineEl);
+    }
+    if (phase >= 1) node(460, 48, "корень", "cn");
+    if (phase >= 2) {
+      var kids = Math.min(r.pa, 6);
+      for (var i = 0; i < kids; i++) {
+        var x = 80 + (760 / Math.max(kids - 1, 1)) * i;
+        if (kids === 1) x = 460;
+        edge(460, 72, x, 150);
+        node(x, 176, "n/" + r.pb, "c n/" + r.pb);
+      }
+      if (r.pa > kids) node(860, 176, "+" + (r.pa - kids), "ещё");
+    }
+    if (phase >= 3) node(460, 270, "листья", "n^log_" + r.pb + "(" + r.pa + ")");
+    if (phase >= 6 && r.theta) node(760, 48, r.theta, "граница");
+    stage.appendChild(svg);
+  }
+
+  document.getElementById("prev").onclick = function () { stop(); show(index - 1); };
+  document.getElementById("next").onclick = function () { stop(); show(index + 1); };
+  playBtn.onclick = function () {
+    if (timer) { stop(); return; }
+    playBtn.textContent = "пауза";
+    playBtn.classList.remove("primary");
+    timer = setInterval(function () {
+      if (index >= frames.length - 1) { stop(); return; }
+      show(index + 1);
+    }, 900);
+  };
+  scrub.oninput = function () { stop(); show(Number(scrub.value)); };
+  q.oninput = function () {
+    var name = current() ? current().name : "";
+    fillSelect();
+    for (var i = 0; i < who.options.length; i++) {
+      if (students[Number(who.options[i].value)].name === name) who.selectedIndex = i;
+    }
+    if (who.selectedIndex < 0 && who.options.length) who.selectedIndex = 0;
+  };
+  who.onchange = loadStudent;
+  document.addEventListener("keydown", function (e) {
+    if (e.target === q || e.target === who) return;
+    if (e.key === "ArrowRight") { stop(); show(index + 1); }
+    if (e.key === "ArrowLeft") { stop(); show(index - 1); }
+    if (e.key === " ") { e.preventDefault(); playBtn.click(); }
+  });
+
+  fillSelect();
+  selectName("Черакаев Антон Александрович");
+})();
+</script>
+</body>
+</html>

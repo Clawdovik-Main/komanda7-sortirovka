@@ -7,14 +7,14 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.shared import Cm, Pt, RGBColor
 from pptx import Presentation
 from pptx.dml.color import RGBColor as PptColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.util import Cm as Pcm, Pt as Ppt
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name == "сборка" else Path(__file__).resolve().parent
 RESULTS = ROOT / "results"
 NAVY = "16324F"
 GOLD = "A56B12"
@@ -121,6 +121,8 @@ def build_report(times):
     add_p(doc, "Дисциплина: Алгоритмы и структуры данных", center=True, size=12)
     add_p(doc, "Преподаватель: Меметов М. Р.", center=True, size=12)
     add_p(doc, "Симферополь, 2026", center=True, size=12)
+    paragraph = doc.add_paragraph()
+    paragraph.add_run().add_break(WD_BREAK.PAGE)
 
     add_p(doc, "1. Состав команды и цель", bold=True)
     add_p(doc, "Лидер команды: Подъячий Глеб Русланович. Участники: Керимов Андрей Эдуардович, Мамбетов Родион Рудемович, Черакаев Антон Александрович, Кулиш Артём Евгеньевич.")
@@ -167,7 +169,15 @@ def build_report(times):
         for c, value in enumerate(row):
             set_cell(table.rows[r].cells[c], value, bold=(r == 0))
     add_p(doc, "На случайном миллионе самые быстрые три реализации близки: Java для int 48 мс, C# 48 мс, C++ std::sort 55 мс. Python тратит 277 мс, JavaScript 175 мс, Java для объектов 260 мс. Разрыв здесь в основном из-за сравнения объектов и устройства языка, а не из-за того, что Timsort «плохой». На тех же случайных данных рост от 100 тысяч к миллиону у C++ около 12 раз, у Python около 14 раз. Это согласуется с n log n: при росте n в 10 раз ждут примерно 12.")
+    picture = doc.add_paragraph()
+    picture.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    picture.add_run().add_picture(str(RESULTS / "fig_random.png"), width=Cm(15.2))
+    add_p(doc, "Рисунок 1. Случайный массив из миллиона чисел.", center=True, size=12)
     add_p(doc, "На уже упорядоченном миллионе картина другая. Java для int укладывается в 0,11 мс: готовые серии почти не переставляются. Python делает это за 5,86 мс вместо 277 мс на случайных числах. Почти упорядоченный массив тоже сильно быстрее случайного у всех адаптивных реализаций.")
+    picture = doc.add_paragraph()
+    picture.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    picture.add_run().add_picture(str(RESULTS / "fig_sorted.png"), width=Cm(15.2))
+    add_p(doc, "Рисунок 2. Тот же миллион, числа уже стоят по возрастанию.", center=True, size=12)
     add_p(doc, "Проверка устойчивости совпала с описанием алгоритмов. Python, JavaScript, Java для объектов и C++ stable_sort порядок равных элементов сохранили. C# Array.Sort и C++ std::sort его сломали: внутри равного значения более поздний элемент оказался левее раннего.")
 
     add_p(doc, "6. Выводы", bold=True)

@@ -8,7 +8,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Cm, Emu, Pt
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name == "сборка" else Path(__file__).resolve().parent
 INK = "8D4330"
 PINK = "FF8BA6"
 CREAM = "FFF6EE"

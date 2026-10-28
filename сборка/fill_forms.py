@@ -6,7 +6,7 @@ from pathlib import Path
 from docx import Document
 from docx.shared import Pt
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name == "сборка" else Path(__file__).resolve().parent
 TEMPLATE = ROOT.parent / "Форма самооценки команды.docx"
 OUT = ROOT / "самооценка"
 

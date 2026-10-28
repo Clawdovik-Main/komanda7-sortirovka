@@ -5,6 +5,7 @@
 @page { size: A4; margin: 16mm 16mm 16mm 18mm; }
 body { font-family: "Times New Roman", Times, serif; font-size: 14pt; line-height: 1.38; color: #1c2830; }
 img { width: 92%; display: block; margin: 8px auto; }
+.title-page { min-height: 250mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; }
 h1 { font-size: 18pt; text-align: center; margin: 0 0 6px; }
 h2 { font-size: 15pt; margin: 12px 0 4px; }
 p { margin: 0 0 6px; }
@@ -14,10 +15,16 @@ table { border-collapse: collapse; width: 100%; margin: 6px 0 8px; font-size: 11
 th, td { border: 1px solid #8aa; padding: 3px 5px; text-align: left; }
 th { background: #16324f; color: white; }
 </style></head><body>
+<div class="title-page">
+<p class="center small">МИНИСТЕРСТВО ОБРАЗОВАНИЯ И НАУКИ РЕСПУБЛИКИ КРЫМ</p>
 <p class="center small">ГБОУВО РК «Крымский инженерно-педагогический университет имени Февзи Якубова»</p>
 <h1>ОТЧЁТ</h1>
-<p class="center"><b>Команда 7. Сортировка в современных языках программирования</b></p>
-<p class="center small">Алгоритмы и структуры данных. Преподаватель: Меметов М. Р. Симферополь, 2026</p>
+<p class="center"><b>Групповой проект. Команда 7</b></p>
+<p class="center"><b>Сортировка в современных языках программирования</b></p>
+<p class="center small">Дисциплина: Алгоритмы и структуры данных</p>
+<p class="center small">Преподаватель: Меметов М. Р.</p>
+<p class="center small">Симферополь, 2026</p>
+</div>
 <h2>1. Состав и цель</h2>
 <p>Лидер: Подъячий Глеб Русланович. Участники: Керимов Андрей Эдуардович, Мамбетов Родион Рудемович, Черакаев Антон Александрович, Кулиш Артём Евгеньевич.</p>
 <p>Цель: выяснить, какой алгоритм спрятан во встроенной сортировке Python, Java, C#, JavaScript и C++, и на одних и тех же массивах сравнить время и устойчивость.</p>
@@ -47,10 +54,10 @@ th { background: #16324f; color: white; }
 <tr><th>Реализация</th><th>Случайные</th><th>По возрастанию</th><th>По убыванию</th><th>Мало разных</th><th>Почти упорядочен</th></tr><tr><td>C++ std::sort</td><td>54,7</td><td>4,35</td><td>5,65</td><td>8,86</td><td>4,92</td></tr><tr><td>C# Array.Sort</td><td>48,1</td><td>4,76</td><td>9,23</td><td>17,3</td><td>4,92</td></tr><tr><td>Java int[]</td><td>48,0</td><td>0,11</td><td>0,64</td><td>9,05</td><td>4,44</td></tr><tr><td>C++ stable_sort</td><td>52,4</td><td>4,48</td><td>8,04</td><td>17,3</td><td>4,36</td></tr><tr><td>JavaScript sort</td><td>175</td><td>8,88</td><td>8,94</td><td>84,3</td><td>20,3</td></tr><tr><td>Java Integer[]</td><td>260</td><td>1,19</td><td>6,65</td><td>130</td><td>4,04</td></tr><tr><td>Python list.sort</td><td>277</td><td>5,86</td><td>6,91</td><td>96,2</td><td>14,5</td></tr>
 </table>
 <p>Рисунок 1. Случайный массив из миллиона чисел. Три быстрые реализации для голых чисел стоят рядом, три реализации с объектами или с динамическим языком заметно правее.</p>
-<img src="results/fig_random.png" alt="Время на случайном миллионе">
+<img src="fig_random.png" alt="Время на случайном миллионе">
 <p>На случайном миллионе Java для int, C# и C++ std::sort близки: 48, 48 и 55 мс. Python тратит 277 мс, Java для объектов 260 мс, JavaScript 175 мс. Это цена сравнения объектов и устройства языка, а не приговор Timsort. От 100 тысяч элементов к миллиону время C++ выросло примерно в 12 раз, время Python примерно в 14 раз. Формула n log n при росте n в десять раз как раз обещает около двенадцати.</p>
 <p>Рисунок 2. Тот же миллион, но числа уже стоят по возрастанию. Шкала другая: здесь счёт идёт на единицы миллисекунд, а не на сотни.</p>
-<img src="results/fig_sorted.png" alt="Время на упорядоченном миллионе">
+<img src="fig_sorted.png" alt="Время на упорядоченном миллионе">
 <p>На упорядоченном миллионе Java для int показывает 0,11 мс против 48 мс на случайных числах. Python показывает 5,86 мс против 277 мс. Готовый порядок адаптивные реализации используют. Массив из десяти разных значений, наоборот, тяжелее для устойчивых сортировок объектов: Python тратит 96 мс, Java для объектов 130 мс, а std::sort остаётся на 8,86 мс.</p>
 <p>Проверка устойчивости сделана отдельно от таблицы времени, на четырёхстах парах. Python, JavaScript, объекты Java и std::stable_sort сохранили исходные номера внутри равного значения. C# Array.Sort и C++ std::sort их переставили. Короткий пример из десяти элементов для этой проверки не годится: introsort на таком куске часто доделывает работу вставками и случайно сохраняет порядок.</p>
 <h2>6. Кто что делает на защите</h2>

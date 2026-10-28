@@ -1,9 +1,10 @@
-/* Письменный разбор контрольной для пятерых. Запуск: node build_kontrol_reports.js */
+/* Письменный разбор контрольной для пятерых. Запуск из корня: node сборка/build_kontrol_reports.js */
 const fs = require("fs");
 const path = require("path");
-const Q = require("./quiz_core.js");
+const root = path.join(__dirname, "..");
+const Q = require(path.join(root, "quiz_core.js"));
 
-const students = fs.readFileSync(path.join(__dirname, "students.js"), "utf8")
+const students = fs.readFileSync(path.join(root, "students.js"), "utf8")
   .replace(/^window\.QUIZ_STUDENTS = /, "")
   .replace(/;\s*$/, "");
 const all = JSON.parse(students);
@@ -14,7 +15,7 @@ const team = [
   "Черакаев Антон Александрович",
   "Кулиш Артём Евгеньевич"
 ];
-const outDir = path.join(__dirname, "контрольная");
+const outDir = path.join(root, "контрольная");
 fs.mkdirSync(outDir, { recursive: true });
 
 function esc(s) {

@@ -184,7 +184,7 @@ def build_report(times):
         "ISO/IEC 14882. std::sort и std::stable_sort: сложность и требование устойчивости.",
     ]:
         add_p(doc, item, size=12)
-    path = ROOT / "Отчет_команда7.docx"
+    path = ROOT / "сдача" / "отчет" / "Отчет_команда7.docx"
     doc.save(path)
     return path
 
@@ -282,7 +282,7 @@ def build_person(person):
     add_p(doc, "Сложность: " + person["hard"])
     add_p(doc, "Личный вклад: 20%. Вклад оценивается по своей языковой части и участию в общем эксперименте. Подпись ставится на защите.")
     add_p(doc, "Подпись: ____________________    Дата: 28.10.2026")
-    folder = ROOT / "индивидуальные"
+    folder = ROOT / "сдача" / "индивидуальные"
     folder.mkdir(exist_ok=True)
     doc.save(folder / f"{person['file']}.docx")
 
@@ -365,7 +365,7 @@ def build_roles():
         set_cell(table.rows[index].cells[1], person["topic"])
         set_cell(table.rows[index].cells[2], "не меньше 1 минуты")
     add_p(doc, "Порядок выступления: Подъячий, Керимов, Мамбетов, Черакаев, Кулиш, затем Подъячий кратко закрывает выводы. Демонстрация: файл demo.html и при необходимости повторный запуск run_bench.py.")
-    doc.save(ROOT / "Распределение_обязанностей.docx")
+    doc.save(ROOT / "сдача" / "роли" / "Распределение_обязанностей.docx")
 
 
 def add_text(slide, text, left, top, width, height, size=20, bold=False, color=NAVY, align=PP_ALIGN.LEFT):
@@ -540,7 +540,7 @@ def build_pptx(times):
         paragraph.font.name = "Calibri"
         paragraph.level = 0
 
-    path = ROOT / "Презентация_команда7.pptx"
+    path = ROOT / "сдача" / "презентация" / "Презентация_команда7.pptx"
     prs.save(path)
     return path
 
@@ -597,7 +597,7 @@ th {{ background: #16324f; color: white; }}
 <p>Выбор зависит от двух вещей: важен ли порядок равных элементов и есть ли в данных готовый порядок. Числа и скорость: std::sort, Array.Sort или Arrays.sort для int. Прежний порядок равных записей: list.sort, сортировка объектов в Java, Array.prototype.sort с числовым компаратором, std::stable_sort или OrderBy. В JavaScript вызов без функции сравнения для чисел является ошибкой.</p>
 <p class="small">Источники: CPython listsort.txt и Powersort с версии 3.11; документация Java SE 17 Arrays; Microsoft Array.Sort; блог V8 «Getting things sorted»; MDN, устойчивость с ES2019; стандарт C++ для std::sort и std::stable_sort.</p>
 </body></html>"""
-    path = ROOT / "Отчет_команда7.html"
+    path = ROOT / "сдача" / "отчет" / "Отчет_команда7.html"
     path.write_text(document, encoding="utf-8")
     return path
 
@@ -611,7 +611,7 @@ def to_pdf(report_html):
     if edge is None:
         print("EDGE_NOT_FOUND")
         return
-    pdf = ROOT / "Отчет_команда7.pdf"
+    pdf = ROOT / "сдача" / "отчет" / "Отчет_команда7.pdf"
     uri = report_html.resolve().as_uri()
     subprocess.run(
         [str(edge), "--headless", "--disable-gpu", "--no-pdf-header-footer", f"--print-to-pdf={pdf}", uri],

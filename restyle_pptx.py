@@ -273,7 +273,7 @@ def build():
         badge = buttons[index % len(buttons)]
         slide.shapes.add_picture(str(ROOT / badge), Cm(14.2), Cm(17.85), Cm(3.4), Cm(1.15))
 
-    out = ROOT / "Презентация_команда7.pptx"
+    out = ROOT / "сдача" / "презентация" / "Презентация_команда7.pptx"
     prs.save(out)
     print(len(prs.slides), out)
 

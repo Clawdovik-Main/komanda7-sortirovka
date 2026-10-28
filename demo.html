@@ -121,6 +121,7 @@
   .stat { background: #fff; border: 2px dashed var(--pink); border-radius: 12px; padding: 8px; margin-top: 8px; font-size: 14px; }
   .stamps { display: flex; flex-wrap: wrap; gap: 6px; }
   .stamps img { width: 64px; height: 76px; object-fit: cover; background: #fff; padding: 3px 3px 12px; border: 2px solid var(--pink); transform: rotate(var(--r)); }
+  .stamps img.meme { width: 108px; height: 84px; }
   main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
   .hero, .block { padding: 14px 16px 18px; }
   h1 { font-family: "Cinzel Decorative", Palatino, serif; font-size: clamp(28px, 4vw, 46px); line-height: 1.05; margin: 4px 0; }
@@ -271,8 +272,12 @@
     <img src="faces/chain.jpg" alt="Участник" style="--r:-6deg">
     <img src="faces/wavy.jpg" alt="Участник" style="--r:4deg">
     <img src="faces/curly.jpg" alt="Участник" style="--r:-2deg">
-    <img src="faces/kid.jpg" alt="Архив" style="--r:5deg">
+    <img src="faces/kid.jpg" alt="Родион" style="--r:5deg">
+    <img src="faces/gleb-molodoy.jpg" alt="Молодой Глеб" style="--r:-4deg">
+    <img class="meme" src="stickers/davai.jpg" alt="Давай" style="--r:2deg">
+    <img class="meme" src="stickers/strashno.jpg" alt="Мне очень страшно" style="--r:-3deg">
   </div>
+  <p>Детский кадр: Родион. Рядом молодой Глеб.</p>
 </aside>
 <main>
   <header class="hero" id="top">
@@ -449,7 +454,7 @@
 
   <section class="block" id="credits">
     <h2>Титры</h2>
-    <p>Фамилии едут отдельно от лиц: на фото не было подписей. Детский кадр без фамилии. Креветка после титров.</p>
+    <p>Детский кадр подписан: Родион. Следом молодой Глеб. Креветка после титров.</p>
     <div class="stage" id="creditStage">
       <div class="stars"></div>
       <div class="crawl" id="crawl">
@@ -462,7 +467,8 @@
         <article class="credit"><p class="kicker">Кадр первый</p><img class="portrait" src="faces/chain.jpg" alt="Короткие волосы, цепь"><p>Съёмочная группа.</p></article>
         <article class="credit"><p class="kicker">Кадр второй</p><img class="portrait" src="faces/wavy.jpg" alt="Волнистые волосы"><p>Волны без гарантии устойчивости.</p></article>
         <article class="credit"><p class="kicker">Кадр третий</p><img class="portrait" src="faces/curly.jpg" alt="Кудрявые волосы"><p>Кудри порядка n log n.</p></article>
-        <article class="credit"><p class="kicker">Архив</p><img class="portrait vhs" src="faces/kid.jpg" alt="Архивное фото"><p>Снято задолго до курса. Фамилию не ставим.</p></article>
+        <article class="credit"><p class="kicker">Архив</p><img class="portrait vhs" src="faces/kid.jpg" alt="Родион в детстве"><p>Родион. Снято задолго до курса.</p></article>
+        <article class="credit"><p class="kicker">Молодой Глеб</p><img class="portrait" src="faces/gleb-molodoy.jpg" alt="Молодой Глеб"><p>Уже на остановке. Сортировка ещё в пути.</p></article>
         <article class="credit"><p class="kicker">Замер</p><h3>Зерно 7</h3><p>Медиана пяти прогонов после прогрева.</p></article>
         <article class="credit"><p class="kicker">После титров</p><img class="shrimp-shot" src="faces/shrimp.jpg" alt="Креветка и кольцо"><p>Единственный, кто обогнал std::sort и при этом горел.</p></article>
         <article class="credit"><h3>Конец</h3><p>Порядок равных и готовые куски в данных решают, какую функцию брать.</p></article>
@@ -495,8 +501,8 @@
           <img src="faces/chain.jpg" alt="">
           <img src="faces/wavy.jpg" alt="">
           <img src="faces/curly.jpg" alt="">
-          <img src="faces/kid.jpg" alt="">
-          <img src="faces/shrimp.jpg" alt="">
+          <img src="faces/kid.jpg" alt="Родион">
+          <img src="faces/gleb-molodoy.jpg" alt="Молодой Глеб">
         </div>
       </div>
     </article>

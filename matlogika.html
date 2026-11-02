@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Матлогика. Работа 8, вариант 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#8d4330; --pink:#ff8ba6; --peach:#ffd6b7; --gold:#ffc179; --cream:#fff6ee; --paper:#ffe7d4; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body {
+    margin: 0; color: var(--ink);
+    font-family: "Balsamiq Sans", "Segoe Print", "Comic Sans MS", cursive;
+    line-height: 1.45;
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 12px 12px, rgba(255,139,166,.28) 2px, transparent 3px),
+      linear-gradient(rgba(255,193,121,.22) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,139,166,.14) 1px, transparent 1px);
+    background-size: 28px 28px, 100% 22px, 22px 100%;
+  }
+  a, button { cursor: pointer; }
+  .topbar { position: sticky; top: 0; z-index: 20; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 12px; background: linear-gradient(#fff, #ffe0ea); border-bottom: 4px solid #fff; box-shadow: 0 4px 0 var(--pink); }
+  .topbar a, button {
+    font: inherit; border: 3px double #fff; background: #fff; color: var(--ink);
+    border-radius: 999px; padding: 7px 12px; box-shadow: 3px 3px 0 var(--peach); text-decoration: none;
+  }
+  .topbar a.on, button.on, button.primary { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--pink); }
+  .blink { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .marquee { overflow: hidden; border-bottom: 3px double var(--pink); background: rgba(255,255,255,.7); font-weight: 700; }
+  .marquee p { margin: 6px 0; white-space: nowrap; animation: slide 32s linear infinite; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  .float { position: fixed; z-index: 4; pointer-events: none; width: 64px; animation: bob 3.4s ease-in-out infinite; }
+  .float.a { top: 78px; right: 8px; }
+  .float.b { bottom: 16px; left: 8px; animation-delay: .6s; }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(6deg); } }
+  .layout { max-width: 1180px; margin: 0 auto; padding: 12px; display: grid; grid-template-columns: 250px 1fr; gap: 12px; }
+  aside, .block, .hero {
+    background: rgba(255,246,238,.94);
+    border: 3px double var(--pink);
+    box-shadow: 0 0 0 5px #fff, 0 0 0 8px var(--gold);
+    border-radius: 22px;
+  }
+  aside { position: sticky; top: 64px; align-self: start; max-height: calc(100vh - 80px); overflow: auto; padding: 12px; }
+  aside a { display: block; color: var(--ink); text-decoration: none; padding: 3px 0; }
+  aside a:hover { background: #ffe0ea; }
+  main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .hero, .block { padding: 14px 16px 18px; scroll-margin-top: 78px; }
+  h1, h2, h3, aside h2 { font-family: "Unbounded", "Trebuchet MS", sans-serif; }
+  h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.1; margin: 4px 0; }
+  h2 { margin: 0 0 8px; font-size: 22px; }
+  h3 { margin: 12px 0 4px; font-size: 16px; }
+  .kicker { letter-spacing: .14em; font-size: 12px; margin: 0; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+  .card { background: #fff; border: 3px double var(--gold); border-radius: 16px; padding: 10px; }
+  .card b.sign { display: inline-flex; min-width: 42px; height: 42px; align-items: center; justify-content: center; border-radius: 12px; background: #ffe0ea; margin-right: 6px; font-size: 22px; }
+  .note { background: #fff; border: 2px dashed var(--pink); border-radius: 12px; padding: 8px 10px; }
+  .ok { color: #1d7a45; font-weight: 700; }
+  .bad { color: #b42318; font-weight: 700; }
+  .pill { display: inline-block; border-radius: 999px; padding: 3px 10px; font-weight: 700; background: #fff; border: 2px solid var(--ink); }
+  .pill.yes { background: #d7f5e3; }
+  .pill.no { background: #ffd0dc; }
+  .bars { display: flex; align-items: flex-end; gap: 8px; min-height: 120px; margin: 8px 0; flex-wrap: wrap; }
+  .bars i { width: 54px; border: 3px solid var(--ink); border-radius: 10px 10px 4px 4px; display: flex; align-items: flex-end; justify-content: center; font-weight: 700; background: #fff; font-style: normal; transition: height .35s ease, background .35s ease; }
+  .bars i.one { background: #d7f5e3; }
+  .bars i.zero { background: #ffd0dc; }
+  .bars i.go { animation: pop .45s ease; }
+  @keyframes pop { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
+  .flow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .box { background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 6px 10px; font-weight: 700; }
+  .box.one { background: #d7f5e3; }
+  .box.zero { background: #ffd0dc; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 280px; background: #fff; font-size: 15px; }
+  th, td { border: 1px solid #f3c3cf; padding: 5px 7px; text-align: center; font-weight: 700; }
+  th { background: #ffe0ea; }
+  td.one { background: #d7f5e3; }
+  td.zero { background: #ffd0dc; }
+  td.res { outline: 3px solid var(--ink); outline-offset: -3px; }
+  tr.bad td { background: #ffd0dc; }
+  .item { background: #fff; border: 3px double var(--gold); border-radius: 16px; padding: 10px 12px; margin: 8px 0; }
+  .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .id { font-family: "Unbounded", sans-serif; min-width: 2.4em; }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; max-height: none; }
+    .float { display: none; }
+    html { scroll-padding-top: 120px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .blink, .marquee p, .float, .bars i { animation: none; }
+  }
+</style>
+</head>
+<body>
+<img class="float a" src="stickers/star.gif" alt="">
+<img class="float b" src="stickers/heart.gif" alt="">
+<div class="topbar">
+  <a href="demo.html">защита</a>
+  <a href="kontrolnaya.html">контрольная</a>
+  <a class="on" href="matlogika.html">матлогика</a>
+  <span class="blink">вариант 1, номер 26</span>
+</div>
+<div class="marquee"><p>тавтология ★ все строки равны 1 ★ следование ★ нельзя строку «слева 1, справа 0» ★ A или ложь равно A ★ стрелка в истину всегда 1 ★ тавтология ★ все строки равны 1 ★ следование ★ нельзя строку «слева 1, справа 0» ★ A или ложь равно A ★ стрелка в истину всегда 1 ★</p></div>
+<div class="layout">
+<aside>
+  <p class="kicker">ПУЛЬТ</p>
+  <h2>Куда листать</h2>
+  <a href="#dict">Словарь</a>
+  <a href="#rules">Принципы</a>
+  <a href="#play">Поиграть со строкой</a>
+  <a href="#t1">1. Тавтологии</a>
+  <a href="#t2">2. Следования</a>
+  <a href="#var">Вариант 1</a>
+  <a href="#early">Работы 4-7</a>
+</aside>
+<main>
+  <header class="hero" id="top">
+    <p class="kicker">КИПУ · МАТЕМАТИЧЕСКАЯ ЛОГИКА · ЧЕРАКАЕВ АНТОН</p>
+    <h1>Тавтологии и следование</h1>
+    <p>Практическая работа 8, вариант 1. Номер в списке 26. Зелёная клетка это 1, розовая это 0. Последний столбец тавтологии зелёный во всех строках. Следование ломается одной строкой: слева 1, справа 0.</p>
+  </header>
+
+  <section class="block" id="dict">
+    <h2>Словарь</h2>
+    <div class="cards">
+      <article class="card"><b class="sign">1</b><b>Истина.</b> В таблицах пишем 1. Буква И в варианте значит любая истина.</article>
+      <article class="card"><b class="sign">0</b><b>Ложь.</b> В таблицах пишем 0. Буква Л значит любая ложь.</article>
+      <article class="card"><b class="sign">¬</b><b>Не.</b> Переворот: ¬1 = 0, ¬0 = 1. Два отрицания возвращают букву.</article>
+      <article class="card"><b class="sign">∧</b><b>И.</b> Единица только когда обе части равны 1. Знак &amp; на листе значит то же.</article>
+      <article class="card"><b class="sign">∨</b><b>Или.</b> Ноль только при 0 ∨ 0. Хватает одной единицы.</article>
+      <article class="card"><b class="sign">→</b><b>Если, то.</b> Ложь только при 1 → 0. Знак ⊃ на листе это та же стрелка.</article>
+      <article class="card"><b class="sign">↔</b><b>Эквивалентность.</b> Единица, когда части равны. Знак ~ значит то же.</article>
+      <article class="card"><b class="sign">≡</b><b>Равносильность.</b> Столбцы совпали во всех строках. Это тавтология A ↔ B.</article>
+      <article class="card"><b class="sign">⊨</b><b>Следование.</b> Нет строки, где слева 1, а справа 0. Обратно может не быть.</article>
+    </div>
+  </section>
+
+  <section class="block" id="rules">
+    <h2>Принципы</h2>
+    <div class="cards">
+      <article class="card"><h3>Тавтология</h3><div class="bars" aria-hidden="true"><i class="one" style="height:96px">1</i><i class="one" style="height:96px">1</i><i class="one" style="height:96px">1</i><i class="one" style="height:96px">1</i></div><p>Итог равен 1 в каждой строке.</p></article>
+      <article class="card"><h3>Противоречие</h3><div class="bars" aria-hidden="true"><i class="zero" style="height:28px">0</i><i class="zero" style="height:28px">0</i><i class="zero" style="height:28px">0</i><i class="zero" style="height:28px">0</i></div><p>Итог равен 0 в каждой строке.</p></article>
+      <article class="card"><h3>Выполнима</h3><div class="bars" aria-hidden="true"><i class="zero" style="height:28px">0</i><i class="one" style="height:96px">1</i><i class="zero" style="height:28px">0</i><i class="one" style="height:96px">1</i></div><p>Есть хотя бы одна строка с 1.</p></article>
+      <article class="card"><h3>Опровержима</h3><div class="bars" aria-hidden="true"><i class="one" style="height:96px">1</i><i class="zero" style="height:28px">0</i><i class="one" style="height:96px">1</i><i class="one" style="height:96px">1</i></div><p>Есть хотя бы одна строка с 0.</p></article>
+    </div>
+    <h3>Как устроена связка</h3>
+    <p>Импликация ложна ровно в одной клетке: 1 → 0. В пункте 2 ищем, когда правая часть могла бы стать нулём.</p>
+    <div class="scroll"><table>
+      <tr><th>A</th><th>B</th><th>A ∧ B</th><th>A ∨ B</th><th>A → B</th><th>A ↔ B</th></tr>
+      <tr><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="one">1</td><td class="one">1</td></tr>
+      <tr><td class="zero">0</td><td class="one">1</td><td class="zero">0</td><td class="one">1</td><td class="one">1</td><td class="zero">0</td></tr>
+      <tr><td class="one">1</td><td class="zero">0</td><td class="zero">0</td><td class="one">1</td><td class="zero">0</td><td class="zero">0</td></tr>
+      <tr><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one">1</td></tr>
+    </table></div>
+    <h3>Равносильность: столбцы совпадают</h3>
+    <div class="scroll"><table>
+      <tr><th>A</th><th>B</th><th>что это значит</th></tr>
+      <tr><td class="one">1</td><td class="one">1</td><td>совпали</td></tr>
+      <tr><td class="zero">0</td><td class="zero">0</td><td>совпали</td></tr>
+      <tr class="bad"><td class="zero">0</td><td class="one">1</td><td>не совпали, равносильности нет</td></tr>
+    </table></div>
+    <h3>Следование: запрещена одна строка</h3>
+    <p>Строки, где слева 0, не мешают. Мешает только «слева 1, справа 0».</p>
+    <div class="scroll"><table>
+      <tr><th>F</th><th>G</th><th>можно ли</th></tr>
+      <tr><td class="one">1</td><td class="one">1</td><td>можно</td></tr>
+      <tr><td class="zero">0</td><td class="one">1</td><td>можно, слева и так ложь</td></tr>
+      <tr><td class="zero">0</td><td class="zero">0</td><td>можно, слева и так ложь</td></tr>
+      <tr class="bad"><td class="one">1</td><td class="zero">0</td><td>нельзя: следования нет</td></tr>
+    </table></div>
+  </section>
+
+  <section class="block" id="play">
+    <h2>Поиграть со строкой</h2>
+    <p>Кнопки ставят P, Q и R. Полоски показывают P ∨ ¬P и запрет следования на примере 2а: (P ∨ ¬R) → Q слева и (P → Q) ∧ R справа.</p>
+    <div class="flow">
+      <button type="button" id="bp" class="primary">P = 0</button>
+      <button type="button" id="bq">Q = 1</button>
+      <button type="button" id="br">R = 0</button>
+    </div>
+    <p id="playText"></p>
+    <div class="bars" id="playBars" aria-live="polite"></div>
+  </section>
+
+  <section class="block" id="t1">
+    <h2>1. Доказать, что это тавтологии</h2>
+    <p>В последнем столбце каждой таблицы стоит 1. Это и есть доказательство.</p>
+
+    <article class="item">
+      <div class="top"><span class="id">1а)</span><span class="pill yes">Тавтология</span></div>
+      <h3>P ∨ ¬P, исключённое третье</h3>
+      <p>Из двух клеток «P» и «не P» одна всегда зелёная. Дизъюнкция берёт её и даёт 1.</p>
+      <div class="flow"><span class="box zero">P = 0</span><span>¬</span><span class="box one">¬P = 1</span><span>∨</span><span class="box one">итог 1</span></div>
+      <div class="flow"><span class="box one">P = 1</span><span>¬</span><span class="box zero">¬P = 0</span><span>∨</span><span class="box one">итог 1</span></div>
+      <div class="scroll"><table><tr><th>P</th><th>¬P</th><th>P ∨ ¬P</th></tr>
+        <tr><td class="zero">0</td><td class="one">1</td><td class="one res">1</td></tr>
+        <tr><td class="one">1</td><td class="zero">0</td><td class="one res">1</td></tr></table></div>
+    </article>
+
+    <article class="item">
+      <div class="top"><span class="id">1б)</span><span class="pill yes">Тавтология</span></div>
+      <h3>¬(P ∧ ¬P)</h3>
+      <p>P и ¬P вместе всегда дают 0. Отрицание нуля равно 1.</p>
+      <div class="scroll"><table><tr><th>P</th><th>¬P</th><th>P ∧ ¬P</th><th>итог</th></tr>
+        <tr><td class="zero">0</td><td class="one">1</td><td class="zero">0</td><td class="one res">1</td></tr>
+        <tr><td class="one">1</td><td class="zero">0</td><td class="zero">0</td><td class="one res">1</td></tr></table></div>
+    </article>
+
+    <article class="item">
+      <div class="top"><span class="id">1в)</span><span class="pill yes">Тавтология</span></div>
+      <h3>¬¬P ↔ P</h3>
+      <p>Два переворота возвращают то же число. Столбцы совпадают.</p>
+      <div class="scroll"><table><tr><th>P</th><th>¬¬P</th><th>↔</th></tr>
+        <tr><td class="zero">0</td><td class="zero">0</td><td class="one res">1</td></tr>
+        <tr><td class="one">1</td><td class="one">1</td><td class="one res">1</td></tr></table></div>
+    </article>
+
+    <article class="item">
+      <div class="top"><span class="id">1г)</span><span class="pill yes">Тавтология</span></div>
+      <h3>P → P</h3>
+      <p>Стрелка ложна только при 1 → 0. Здесь обе стороны одинаковые.</p>
+      <div class="scroll"><table><tr><th>P</th><th>P → P</th></tr>
+        <tr><td class="zero">0</td><td class="one res">1</td></tr>
+        <tr><td class="one">1</td><td class="one res">1</td></tr></table></div>
+    </article>
+
+    <article class="item">
+      <div class="top"><span class="id">1д)</span><span class="pill yes">Тавтология</span></div>
+      <h3>(P → Q) ↔ (¬Q → ¬P), контрапозиция</h3>
+      <p>Перевернули обе буквы и стрелку. Столбцы совпали: 1 и 1, потом 1 и 1, потом 0 и 0, потом 1 и 1.</p>
+      <div class="scroll"><table><tr><th>P</th><th>Q</th><th>P → Q</th><th>¬Q → ¬P</th><th>↔</th></tr>
+        <tr><td class="zero">0</td><td class="zero">0</td><td class="one">1</td><td class="one">1</td><td class="one res">1</td></tr>
+        <tr><td class="zero">0</td><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one res">1</td></tr>
+        <tr><td class="one">1</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="one res">1</td></tr>
+        <tr><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one res">1</td></tr></table></div>
+    </article>
+
+    <article class="item">
+      <div class="top"><span class="id">1е)</span><span class="pill yes">Тавтология</span></div>
+      <h3>((P → Q) ∧ (Q → R)) → (P → R), цепочка</h3>
+      <p>Если обе стрелки слева истинны, то P → R тоже истинна. Где левая часть равна 0, импликация всё равно даёт 1. Во всех 8 строках итог 1.</p>
+    </article>
+
+    <article class="item">
+      <div class="top"><span class="id">1ж)</span><span class="pill yes">Тавтология</span></div>
+      <h3>(P ↔ Q) ↔ (¬P ↔ ¬Q)</h3>
+      <p>Если перевернуть обе буквы, равенство между ними сохраняется.</p>
+      <div class="scroll"><table><tr><th>P</th><th>Q</th><th>P ↔ Q</th><th>¬P ↔ ¬Q</th><th>↔</th></tr>
+        <tr><td class="zero">0</td><td class="zero">0</td><td class="one">1</td><td class="one">1</td><td class="one res">1</td></tr>
+        <tr><td class="zero">0</td><td class="one">1</td><td class="zero">0</td><td class="zero">0</td><td class="one res">1</td></tr>
+        <tr><td class="one">1</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="one res">1</td></tr>
+        <tr><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one res">1</td></tr></table></div>
+    </article>
+
+    <article class="item">
+      <div class="top"><span class="id">1з)</span><span class="pill yes">Тавтология</span></div>
+      <h3>(P ∧ Q) ↔ (Q ∧ P)</h3>
+      <p>Порядок «и» не важен. Обе части дают одно число.</p>
+    </article>
+    <article class="item">
+      <div class="top"><span class="id">1и)</span><span class="pill yes">Тавтология</span></div>
+      <h3>(P ∨ Q) ↔ (Q ∨ P)</h3>
+      <p>Порядок «или» не важен. Обе части совпадают в четырёх строках.</p>
+    </article>
+    <article class="item">
+      <div class="top"><span class="id">1к)</span><span class="pill yes">Тавтология</span></div>
+      <h3>((P ∧ Q) ∧ R) ↔ (P ∧ (Q ∧ R))</h3>
+      <p>Три конъюнкции истинны только когда P, Q и R все равны 1. Скобки это не меняют.</p>
+    </article>
+    <article class="item">
+      <div class="top"><span class="id">1л)</span><span class="pill yes">Тавтология</span></div>
+      <h3>((P ∨ Q) ∨ R) ↔ (P ∨ (Q ∨ R))</h3>
+      <p>Дизъюнкция трёх букв ложна только когда все три равны 0. Скобки это не меняют.</p>
+    </article>
+    <article class="item">
+      <div class="top"><span class="id">1м)</span><span class="pill yes">Тавтология</span></div>
+      <h3>(P ∧ (Q ∨ R)) ↔ ((P ∧ Q) ∨ (P ∧ R))</h3>
+      <p>Конъюнкция распределяется по дизъюнкции. Части равны 1 только когда P = 1 и хотя бы одна из Q, R равна 1.</p>
+    </article>
+    <article class="item">
+      <div class="top"><span class="id">1н)</span><span class="pill yes">Тавтология</span></div>
+      <h3>(P ∨ (Q ∧ R)) ↔ ((P ∨ Q) ∧ (P ∨ R))</h3>
+      <p>Дизъюнкция распределяется по конъюнкции. Столбцы совпали во всех восьми строках.</p>
+    </article>
+  </section>
+
+  <section class="block" id="t2">
+    <h2>2. Есть ли логическое следование</h2>
+    <p>На листе все одиннадцать пунктов названы следованиями. У 2а, 2в и 2ж есть запрещённая строка. У остальных её нет.</p>
+
+    <article class="item"><div class="top"><span class="id">2а)</span><span class="pill no">Следования нет</span></div>
+      <h3>(P ∨ ¬R) → Q ⊨ (P → Q) ∧ R</h3>
+      <p>Контрпример P = 0, Q = 1, R = 0. Слева (0 ∨ 1) → 1 = 1. Справа (0 → 1) ∧ 0 = 0.</p>
+      <div class="flow"><span class="box">P = 0, Q = 1, R = 0</span><span class="box one">слева 1</span><span class="box zero">справа 0</span></div>
+    </article>
+    <article class="item"><div class="top"><span class="id">2б)</span><span class="pill yes">Следование есть</span></div>
+      <h3>(P → Q) → R ⊨ P → (Q → R)</h3>
+      <p>Правая часть равна 0 только при P = 1, Q = 1, R = 0. Тогда слева (1 → 1) → 0 = 0.</p>
+    </article>
+    <article class="item"><div class="top"><span class="id">2в)</span><span class="pill no">Следования нет</span></div>
+      <h3>(P ∨ Q) → R ⊨ (P ∧ ¬Q) ∨ R</h3>
+      <p>Контрпример: все три буквы равны 0. Слева 0 → 0 = 1. Справа 0.</p>
+      <div class="flow"><span class="box">P = Q = R = 0</span><span class="box one">слева 1</span><span class="box zero">справа 0</span></div>
+    </article>
+    <article class="item"><div class="top"><span class="id">2г)</span><span class="pill yes">Следование есть</span></div>
+      <h3>(P → Q) → R ⊨ (P ∧ Q) → R</h3>
+      <p>Правая часть равна 0 только при P = Q = 1 и R = 0. Тогда слева (1 → 1) → 0 = 0.</p>
+    </article>
+    <article class="item"><div class="top"><span class="id">2д)</span><span class="pill yes">Следование есть</span></div>
+      <h3>(P ∧ Q) → R ⊨ P → (Q → R)</h3>
+      <p>Это даже равносильность. Обе части равны 0 ровно при P = Q = 1 и R = 0.</p>
+    </article>
+    <article class="item"><div class="top"><span class="id">2е)</span><span class="pill yes">Следование есть</span></div>
+      <h3>(P ↔ Q) ∨ R ⊨ (¬P → ¬Q) ∨ R</h3>
+      <p>Если R = 1, справа уже 1. Если R = 0, слева остаётся P ↔ Q, а из него получается ¬P → ¬Q.</p>
+    </article>
+    <article class="item"><div class="top"><span class="id">2ж)</span><span class="pill no">Следования нет</span></div>
+      <h3>(P ∨ R) ↔ Q ⊨ (P ∨ R) ↔ R</h3>
+      <p>Контрпример P = 1, Q = 1, R = 0. Слева (1 ∨ 0) ↔ 1 = 1. Справа (1 ∨ 0) ↔ 0 = 0.</p>
+      <div class="flow"><span class="box">P = 1, Q = 1, R = 0</span><span class="box one">слева 1</span><span class="box zero">справа 0</span></div>
+    </article>
+    <article class="item"><div class="top"><span class="id">2з)</span><span class="pill yes">Следование есть</span></div>
+      <h3>¬(P ∨ Q) ⊨ ¬P ∨ R</h3>
+      <p>Равносильности нет: справа лишняя буква R. Если слева 1, то P = 0, значит ¬P = 1, значит ¬P ∨ R = 1.</p>
+    </article>
+    <article class="item"><div class="top"><span class="id">2и)</span><span class="pill yes">Следование есть</span></div>
+      <h3>(P ∨ Q) → R ⊨ (P → Q) ∨ (P ↔ R)</h3>
+      <p>Правая часть равна 0 только при P = 1, Q = 0, R = 0. Тогда слева (1 ∨ 0) → 0 = 0.</p>
+    </article>
+    <article class="item"><div class="top"><span class="id">2к)</span><span class="pill yes">Следование есть</span></div>
+      <h3>P ∧ (Q ∨ R) ⊨ (P ∨ Q) ∧ (P ∨ R)</h3>
+      <p>Если слева 1, то P = 1. Обе скобки справа содержат P и тоже равны 1.</p>
+    </article>
+    <article class="item"><div class="top"><span class="id">2л)</span><span class="pill yes">Следование есть</span></div>
+      <h3>(P ∧ Q) ∨ R ⊨ P ∨ (Q → R)</h3>
+      <p>Если сработало R, то Q → R = 1. Если сработало P ∧ Q, то справа уже есть P = 1.</p>
+    </article>
+  </section>
+
+  <section class="block" id="var">
+    <h2>Вариант 1</h2>
+    <article class="item">
+      <div class="top"><span class="id">А)</span><span class="pill yes">Такое же, как у A</span></div>
+      <h3>Чему равно A ∨ Л</h3>
+      <p>Л это ложь, значение 0. Дизъюнкция с нулём не меняет A.</p>
+      <div class="flow"><span class="box one">A = 1</span><span>∨</span><span class="box zero">Л = 0</span><span>=</span><span class="box one">1</span></div>
+      <div class="flow"><span class="box zero">A = 0</span><span>∨</span><span class="box zero">Л = 0</span><span>=</span><span class="box zero">0</span></div>
+    </article>
+    <article class="item">
+      <div class="top"><span class="id">Б)</span><span class="pill yes">Первая пара</span></div>
+      <h3>A ∧ (B ∧ C) ≡ (A ∧ B) ∧ C</h3>
+      <p>Ассоциативность конъюнкции, столбцы совпадают. A ∧ ¬A ≡ A неверно: слева всегда 0, а при A = 1 справа 1. ¬A ∧ B ≡ B ∨ A неверно: при A = 1 и B = 0 слева 0, справа 1.</p>
+    </article>
+    <article class="item">
+      <div class="top"><span class="id">В)</span><span class="pill yes">Первая и третья</span></div>
+      <h3>(A ⊃ И) ~ ¬Л и (A ⊃ И) ~ И</h3>
+      <p>Знак ⊃ это стрелка, знак ~ это ↔. Стрелка в истину всегда равна 1. Тогда 1 ~ ¬0 = 1 и 1 ~ 1 = 1. Формула 1 ~ A при A = 0 ложна. Формула 1 ~ 0 всегда 0, это противоречие.</p>
+      <div class="scroll"><table>
+        <tr><th>формула</th><th>что получается</th><th>тавтология</th></tr>
+        <tr><td>(A ⊃ И) ~ ¬Л</td><td class="one">1 ~ 1 = 1</td><td class="one">да</td></tr>
+        <tr><td>(A ⊃ И) ~ A</td><td class="zero">при A = 0 это 0</td><td class="zero">нет</td></tr>
+        <tr><td>(A ⊃ И) ~ И</td><td class="one">1 ~ 1 = 1</td><td class="one">да</td></tr>
+        <tr><td>(A ⊃ И) ~ Л</td><td class="zero">1 ~ 0 = 0</td><td class="zero">нет</td></tr>
+      </table></div>
+    </article>
+  </section>
+
+  <section class="block" id="early">
+    <h2>Что уже было на предмете</h2>
+    <article class="card"><h3>Работа 4. Отношения</h3><p>Множество {1, 2, 3, 6}. Пара входит, если первое делит второе без остатка. Девять пар. Это частичный порядок, не линейный: 2 и 3 несравнимы.</p></article>
+    <article class="card"><h3>Работа 5. Функции</h3><p>x³ вложение на всех действительных. (x+1)² не биекция на всех действительных: 0 и −2 дают 1, минус один не получается. У 2x+1 обратная (x−1)/2.</p></article>
+    <article class="card"><h3>Работа 6. Высказывания</h3><p>Высказывание имеет ровно одно значение 0 или 1. Отрицание переворачивает его и закрывает все случаи, где исходное ложно. Волга впадает в Каспийское море, это истина. 28 делится на 7.</p></article>
+    <article class="card"><h3>Работа 7. Формулы</h3><p>¬¬P → P и (P → Q) ∨ (Q → P) это формулы. У первой цепочки со скобками 5 способов, у второй 14. Подформулы считаем один раз, даже если буква повторяется.</p></article>
+  </section>
+</main>
+</div>
+<script>
+(function () {
+  var P = 0, Q = 1, R = 0;
+  function bit(name, value, on) {
+    var b = document.getElementById(name);
+    b.textContent = name.slice(1).toUpperCase() + " = " + value;
+    b.className = on ? "primary" : "";
+  }
+  function imp(a, b) { return a === 1 && b === 0 ? 0 : 1; }
+  function draw() {
+    bit("bp", P, P === 1);
+    bit("bq", Q, Q === 1);
+    bit("br", R, R === 1);
+    var left = imp((P | (1 - R)), Q);
+    var right = imp(P, Q) & R;
+    var mid = P | (1 - P);
+    var bars = document.getElementById("playBars");
+    bars.innerHTML = "";
+    [["P ∨ ¬P", mid], ["слева 2а", left], ["справа 2а", right]].forEach(function (pair) {
+      var i = document.createElement("i");
+      i.className = (pair[1] ? "one" : "zero") + " go";
+      i.style.height = pair[1] ? "96px" : "28px";
+      i.textContent = pair[0] + " " + pair[1];
+      i.style.width = "110px";
+      bars.appendChild(i);
+    });
+    var text = document.getElementById("playText");
+    if (left === 1 && right === 0) {
+      text.innerHTML = "<b class='bad'>Запрещённая строка.</b> Слева 1, справа 0. Для 2а следования нет.";
+    } else {
+      text.innerHTML = "<b class='ok'>Эта строка следование не ломает.</b> P ∨ ¬P всё равно равен 1.";
+    }
+  }
+  document.getElementById("bp").onclick = function () { P = 1 - P; draw(); };
+  document.getElementById("bq").onclick = function () { Q = 1 - Q; draw(); };
+  document.getElementById("br").onclick = function () { R = 1 - R; draw(); };
+  draw();
+})();
+</script>
+</body>
+</html>

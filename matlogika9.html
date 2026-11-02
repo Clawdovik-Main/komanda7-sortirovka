@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Матлогика. Работа 9, вариант 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#8d4330; --pink:#ff8ba6; --peach:#ffd6b7; --gold:#ffc179; --cream:#fff6ee; --paper:#ffe7d4; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body {
+    margin: 0; color: var(--ink);
+    font-family: "Balsamiq Sans", "Segoe Print", "Comic Sans MS", cursive;
+    line-height: 1.45;
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 12px 12px, rgba(255,139,166,.28) 2px, transparent 3px),
+      linear-gradient(rgba(255,193,121,.22) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,139,166,.14) 1px, transparent 1px);
+    background-size: 28px 28px, 100% 22px, 22px 100%;
+  }
+  a, button { cursor: pointer; }
+  .topbar { position: sticky; top: 0; z-index: 20; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 12px; background: linear-gradient(#fff, #ffe0ea); border-bottom: 4px solid #fff; box-shadow: 0 4px 0 var(--pink); }
+  .topbar a, button {
+    font: inherit; border: 3px double #fff; background: #fff; color: var(--ink);
+    border-radius: 999px; padding: 7px 12px; box-shadow: 3px 3px 0 var(--peach); text-decoration: none;
+  }
+  .topbar a.on, button.on, button.primary { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--pink); }
+  .blink { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .marquee { overflow: hidden; border-bottom: 3px double var(--pink); background: rgba(255,255,255,.7); font-weight: 700; }
+  .marquee p { margin: 6px 0; white-space: nowrap; animation: slide 36s linear infinite; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  .float { position: fixed; z-index: 4; pointer-events: none; width: 64px; animation: bob 3.4s ease-in-out infinite; }
+  .float.a { top: 78px; right: 8px; }
+  .float.b { bottom: 16px; left: 8px; animation-delay: .6s; }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(6deg); } }
+  .layout { max-width: 1180px; margin: 0 auto; padding: 12px; display: grid; grid-template-columns: 250px 1fr; gap: 12px; }
+  aside, .block, .hero {
+    background: rgba(255,246,238,.94);
+    border: 3px double var(--pink);
+    box-shadow: 0 0 0 5px #fff, 0 0 0 8px var(--gold);
+    border-radius: 22px;
+  }
+  aside { position: sticky; top: 64px; align-self: start; max-height: calc(100vh - 80px); overflow: auto; padding: 12px; }
+  aside a { display: block; color: var(--ink); text-decoration: none; padding: 3px 0; }
+  aside a:hover { background: #ffe0ea; }
+  main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .hero, .block { padding: 14px 16px 18px; scroll-margin-top: 78px; }
+  h1, h2, h3, aside h2 { font-family: "Unbounded", "Trebuchet MS", sans-serif; }
+  h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.1; margin: 4px 0; }
+  h2 { margin: 0 0 8px; font-size: 22px; }
+  h3 { margin: 10px 0 4px; font-size: 16px; }
+  .kicker { letter-spacing: .14em; font-size: 12px; margin: 0; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+  .card, .item { background: #fff; border: 3px double var(--gold); border-radius: 16px; padding: 10px 12px; }
+  .item { margin: 8px 0; }
+  .note { background: #fff; border: 2px dashed var(--pink); border-radius: 12px; padding: 8px 10px; }
+  .ok { color: #1d7a45; font-weight: 700; }
+  .bad { color: #b42318; font-weight: 700; }
+  .pill { display: inline-block; border-radius: 999px; padding: 3px 10px; font-weight: 700; background: #fff; border: 2px solid var(--ink); }
+  .pill.yes { background: #d7f5e3; }
+  .pill.no { background: #ffd0dc; }
+  .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .id { font-family: "Unbounded", sans-serif; min-width: 2.2em; }
+  .flow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .box { background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 6px 10px; font-weight: 700; }
+  .box.one { background: #d7f5e3; }
+  .box.zero { background: #ffd0dc; }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; max-height: none; }
+    .float { display: none; }
+    html { scroll-padding-top: 140px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .blink, .marquee p, .float { animation: none; }
+  }
+</style>
+</head>
+<body>
+<img class="float a" src="stickers/star.gif" alt="">
+<img class="float b" src="stickers/heart.gif" alt="">
+<div class="topbar">
+  <a href="demo.html">защита</a>
+  <a href="kontrolnaya.html">контрольная</a>
+  <a href="matlogika.html">работа 8</a>
+  <a class="on" href="matlogika9.html">работа 9</a>
+  <span class="blink">вариант 1, номер 26</span>
+</div>
+<div class="marquee"><p>предикат ★ свойство, которое бывает истиной или ложью ★ ∀ для каждого ★ ∃ существует ★ сначала ∀ потом ∃ не то же самое, что сначала ∃ потом ∀ ★ формула собирается по скобкам ★ предикат ★ свойство, которое бывает истиной или ложью ★ ∀ для каждого ★ ∃ существует ★</p></div>
+<div class="layout">
+<aside>
+  <p class="kicker">ПУЛЬТ</p>
+  <h2>Куда листать</h2>
+  <a href="#dict">Словарь</a>
+  <a href="#play">Порядок кванторов</a>
+  <a href="#t1">1. Предикаты</a>
+  <a href="#t2">2. Истина или ложь</a>
+  <a href="#t3">3. Формулы</a>
+  <a href="#var">Вариант 1</a>
+</aside>
+<main>
+  <header class="hero">
+    <p class="kicker">КИПУ · МАТЕМАТИЧЕСКАЯ ЛОГИКА · ЧЕРАКАЕВ АНТОН</p>
+    <h1>Предикаты и кванторы</h1>
+    <p>Практическая работа 9, вариант 1. Номер в списке 26. Предикат по слайду это функция в истину или ложь. Квантор уменьшает число свободных переменных. Из одноместного предиката получается высказывание.</p>
+  </header>
+
+  <section class="block" id="dict">
+    <h2>Словарь</h2>
+    <div class="cards">
+      <article class="card"><h3>Предикат</h3><p>k-местный предикат на множестве M ставит каждому набору из k элементов истину или ложь. «x делится на 5» это предикат. «x² + 2x + 4» это число, предиката нет.</p></article>
+      <article class="card"><h3>∀, квантор общности</h3><p>«Для каждого x». ∀x A(x) истинно, только если A верно при всяком значении x из области.</p></article>
+      <article class="card"><h3>∃, квантор существования</h3><p>«Найдётся x». ∃x A(x) истинно, если есть хотя бы одно значение, при котором A верно.</p></article>
+      <article class="card"><h3>Терм</h3><p>Имя объекта. Переменная, константа и функция от термов. 3 + 4 это терм, не высказывание.</p></article>
+      <article class="card"><h3>Формула</h3><p>Атомарная формула P(t1, ..., tk). Отрицание формулы. Две формулы в скобках под ∧, ∨, →, ↔. Квантор перед формулой.</p></article>
+      <article class="card"><h3>Свободная и связанная</h3><p>Квантор связывает переменную только в своей области действия. Вхождение вне этой области свободно.</p></article>
+    </div>
+  </section>
+
+  <section class="block" id="play">
+    <h2>Порядок кванторов</h2>
+    <p>Нажми число x. Для суммы 7 подходящее y всегда находится: это 7 − x. Одно и то же y на все x сразу не находится.</p>
+    <div class="flow" id="xs"></div>
+    <p id="playText"></p>
+    <div class="flow">
+      <span class="box one">∀x ∃y (x + y = 7): истина</span>
+      <span class="box zero">∃y ∀x (x + y = 7): ложь</span>
+    </div>
+  </section>
+
+  <section class="block" id="t1">
+    <h2>1. Какие выражения являются предикатами</h2>
+    <article class="item"><div class="top"><span class="id">1а)</span><span class="pill yes">Предикат</span></div><h3>«x делится на 5», x из натуральных</h3><p>Одно место. При x = 10 получается истина, при x = 3 ложь.</p></article>
+    <article class="item"><div class="top"><span class="id">1б)</span><span class="pill yes">Предикат</span></div><h3>«Река x впадает в Байкал»</h3><p>Одно место, область это названия рек. Селенга даёт истину, Волга ложь.</p></article>
+    <article class="item"><div class="top"><span class="id">1в)</span><span class="pill no">Не предикат</span></div><h3>x² + 2x + 4</h3><p>Это терм, число. Истины или лжи здесь нет.</p></article>
+    <article class="item"><div class="top"><span class="id">1г)</span><span class="pill yes">Предикат</span></div><h3>(x + y)² = x² + 2xy + y²</h3><p>Два места. Равенство даёт истину или ложь. Здесь истина при всех действительных, но это всё ещё предикат, пока x и y не связаны квантором.</p></article>
+    <article class="item"><div class="top"><span class="id">1д)</span><span class="pill yes">Предикат</span></div><h3>«x есть брат y»</h3><p>Два места, область это люди.</p></article>
+    <article class="item"><div class="top"><span class="id">1е)</span><span class="pill yes">Предикат</span></div><h3>«x и y по разные стороны от z»</h3><p>Три места: две точки и прямая.</p></article>
+    <article class="item"><div class="top"><span class="id">1ж)</span><span class="pill no">Не предикат</span></div><h3>ctg 45° = 1</h3><p>Свободной переменной нет. Это готовое высказывание, и оно истинно.</p></article>
+    <article class="item"><div class="top"><span class="id">1з)</span><span class="pill yes">Предикат</span></div><h3>«x перпендикулярна y»</h3><p>Два места, область это прямые одной плоскости.</p></article>
+    <article class="item"><div class="top"><span class="id">1и)</span><span class="pill yes">Предикат</span></div><h3>x² + x − 6 = 0</h3><p>Одно место. Истина при x = 2 и x = −3, ложь при остальных действительных.</p></article>
+    <article class="item"><div class="top"><span class="id">1к)</span><span class="pill no">Не предикат</span></div><h3>«Для всех x верно x² + x − 6 = 0»</h3><p>Квантор уже связал x. Получилось высказывание, и оно ложно: не каждое число является корнем.</p></article>
+  </section>
+
+  <section class="block" id="t2">
+    <h2>2. Истина или ложь на действительных числах</h2>
+    <article class="item"><div class="top"><span class="id">2а)</span><span class="pill yes">Истина</span></div><h3>∀x ∃y (x + y = 7)</h3><p>Для выбранного x берём y = 7 − x. Такое число есть всегда.</p></article>
+    <article class="item"><div class="top"><span class="id">2б)</span><span class="pill no">Ложь</span></div><h3>∃y ∀x (x + y = 7)</h3><p>Одно y должно годиться для всех x. Для x = 0 нужно y = 7, для x = 1 нужно y = 6. Одного y нет.</p></article>
+    <article class="item"><div class="top"><span class="id">2в)</span><span class="pill no">Ложь</span></div><h3>∃x ∀y (x + y = 7)</h3><p>Та же причина, только общее число теперь называется x.</p></article>
+    <article class="item"><div class="top"><span class="id">2г)</span><span class="pill no">Ложь</span></div><h3>∀x ∀y (x + y = 7)</h3><p>0 + 0 = 0, это не 7.</p></article>
+    <article class="item"><div class="top"><span class="id">2д)</span><span class="pill yes">Истина</span></div><h3>[∀x ∀y (x + y = 3)] → (3 = 4)</h3><p>Слева ложь, справа ложь. Импликация из лжи истинна.</p></article>
+    <article class="item"><div class="top"><span class="id">2е)</span><span class="pill yes">Истина</span></div><h3>∀x [x² &gt; x ↔ (x &gt; 1 ∨ x &lt; 0)]</h3><p>x² − x &gt; 0 это x(x − 1) &gt; 0, то есть x &lt; 0 или x &gt; 1. Части совпадают при каждом x.</p></article>
+    <article class="item"><div class="top"><span class="id">2ж)</span><span class="pill yes">Истина</span></div><h3>∀a [(∃x ax = 6) ↔ (a ≠ 0)]</h3><p>При a ≠ 0 берём x = 6/a. При a = 0 уравнение 0 = 6 решений не имеет.</p></article>
+    <article class="item"><div class="top"><span class="id">2з)</span><span class="pill no">Ложь</span></div><h3>∀b ∃a ∀x (x² + ax + b &gt; 0)</h3><p>Минимум параболы равен b − a²/4. Он больше нуля, только если b &gt; 0. При b = 0 или b &lt; 0 такого a нет, а квантор требует все b.</p></article>
+    <article class="item"><div class="top"><span class="id">2и)</span><span class="pill yes">Истина</span></div><h3>∀x [(x &gt; 1 ∨ x &lt; 2) ↔ (x = x)]</h3><p>Любое действительное число либо больше 1, либо меньше 2. Справа тоже всегда истина.</p></article>
+    <article class="item"><div class="top"><span class="id">2к)</span><span class="pill yes">Истина</span></div><h3>∃b ∀a ∃x (x² + ax + b = 0)</h3><p>Возьмём b = 0. Тогда x(x + a) = 0, корень x = 0 есть при любом a.</p></article>
+    <article class="item"><div class="top"><span class="id">2л)</span><span class="pill no">Ложь</span></div><h3>∃a ∀b ∃x (x² + ax + b = 0)</h3><p>Какое бы a ни взять, при b = a²/4 + 1 дискриминант равен −4. Действительного корня нет.</p></article>
+  </section>
+
+  <section class="block" id="t3">
+    <h2>3. Какие выражения являются формулами</h2>
+    <p class="note">По слайду связка соединяет ровно две формулы и стоит в скобках. Внешние скобки целой формулы можно не писать, как в работе 7. Три части под одной связкой без попарных скобок формулой не являются.</p>
+    <article class="item"><div class="top"><span class="id">3а)</span><span class="pill yes">Формула</span></div><h3>(∃x)(B(x)) → (∀x)(B(x))</h3><p>Обе части формулы. Стрелка соединяет их, внешние скобки опущены.</p></article>
+    <article class="item"><div class="top"><span class="id">3б)</span><span class="pill yes">Формула</span></div><h3>(∀x)(P(x)) → P(y)</h3><p>Слева формула, справа атомарная формула. y свободна.</p></article>
+    <article class="item"><div class="top"><span class="id">3в)</span><span class="pill no">Не формула</span></div><h3>(∀x)((P(x) ∧ Q(x)R(x)) → (∃y)(¬S(x)))</h3><p>Q(x)R(x) это две формулы, написанные подряд, без связки.</p></article>
+    <article class="item"><div class="top"><span class="id">3г)</span><span class="pill yes">Формула</span></div><h3>(∀x)(Q(x) ∧ ¬R(x))</h3><p>Внутри скобок ровно две формулы под ∧.</p></article>
+    <article class="item"><div class="top"><span class="id">3д)</span><span class="pill no">Не формула</span></div><h3>(∃x)(P(x) ∧ Q(x) ∧ ¬R(x))</h3><p>Под одной парой скобок три части. Нужно ((P(x) ∧ Q(x)) ∧ ¬R(x)).</p></article>
+    <article class="item"><div class="top"><span class="id">3е)</span><span class="pill yes">Формула</span></div><h3>(∃x)(E(x) ∧ D(x, y))</h3><p>Две формулы в скобках. y свободна, x связана.</p></article>
+    <article class="item"><div class="top"><span class="id">3ж)</span><span class="pill no">Не формула</span></div><h3>(∀x)(P(x) ∨ Q(x)) → (∃x)(P(x) → Q(x) ∨ R(x))</h3><p>Справа внутри скобок сразу две связки, → и ∨, без попарных скобок.</p></article>
+    <article class="item"><div class="top"><span class="id">3з)</span><span class="pill yes">Формула</span></div><h3>¬P(x) ∧ (∀y)(P(y))</h3><p>Отрицание формулы и кванторная формула. Внешние скобки конъюнкции опущены. x свободна, y связана.</p></article>
+    <article class="item"><div class="top"><span class="id">3и)</span><span class="pill no">Не формула</span></div><h3>(∃x)(∃y)(x ≠ y ∧ P(x) ∧ P(y))</h3><p>Снова три части под одним ∧. Нужны вложенные скобки.</p></article>
+    <article class="item"><div class="top"><span class="id">3к)</span><span class="pill yes">Формула</span></div><h3>¬[(∃x)(P(x)) → (∀x)(P(x))]</h3><p>В скобках импликация двух формул, снаружи отрицание.</p></article>
+    <article class="item"><div class="top"><span class="id">3л)</span><span class="pill yes">Формула</span></div><h3>(∀x)[E(x) → (∀y)(D(x, y) → E(y))]</h3><p>Скобки каждый раз соединяют две готовые формулы.</p></article>
+    <article class="item"><div class="top"><span class="id">3м)</span><span class="pill yes">Формула</span></div><h3>(∃y)[P(y) ∧ (∀x)(Q(x, y) ∨ R(x))]</h3><p>Внутри ∨ стоит в своих скобках, снаружи ∧ соединяет две формулы.</p></article>
+  </section>
+
+  <section class="block" id="var">
+    <h2>Вариант 1</h2>
+    <article class="item">
+      <div class="top"><span class="id">А)</span><span class="pill yes">Два предиката</span></div>
+      <h3>3 + 4 = 7</h3>
+      <p>Предикат P(x, y): «x + y = 7». Область это числа. Подставляем x = 3 и y = 4.</p>
+      <h3>Вера и Надежда сёстры</h3>
+      <p>Предикат S(x, y): «x и y сёстры». Область это люди. Подставляем x = Вера и y = Надежда.</p>
+    </article>
+    <article class="item">
+      <div class="top"><span class="id">Б)</span><span class="pill yes">Свободные и связанные</span></div>
+      <h3>(∀x)(P(x))</h3>
+      <p>Оба вхождения x связанные: одно в кванторе, другое в P(x). Свободных переменных нет, это высказывание.</p>
+      <h3>(∀x)(P(x)) → P(y)</h3>
+      <p>Область квантора только (P(x)). Оба x связанные. y в P(y) свободна, квантор её не трогает.</p>
+      <div class="flow">
+        <span class="box one">x связана</span>
+        <span class="box zero">y свободна</span>
+      </div>
+    </article>
+  </section>
+</main>
+</div>
+<script>
+(function () {
+  var values = [-2, 0, 1, 3, 10];
+  var chosen = 3;
+  var box = document.getElementById("xs");
+  var text = document.getElementById("playText");
+  function draw() {
+    box.innerHTML = "";
+    values.forEach(function (x) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = "x = " + x;
+      if (x === chosen) b.className = "primary";
+      b.onclick = function () { chosen = x; draw(); };
+      box.appendChild(b);
+    });
+    var y = 7 - chosen;
+    text.innerHTML = "Для x = " + chosen + " берём y = " + y + ", потому что " + chosen + " + " + y + " = 7. " +
+      "Если зафиксировать это y и взять другой x, равенство уже не обязано сохраниться.";
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
